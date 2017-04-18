@@ -7,8 +7,91 @@
  Template:       Divi
  Version:        1.0.0
 */
- 
+
 @import url("../Divi/style.css");
- 
+/* 
+------------------------------------------------------- */
+/* 
+------------------------------------------------------- */
+
 /* =Theme customization starts here
 ------------------------------------------------------- */
+
+
+// Customisation page d'accueil
+
+
+/*feature thumbnails portrait on blog page*/
+ 
+.format-portrait .et_pb_post a img{
+  height: 40.625rem !important;
+  height: 650px!important;
+  float: left;
+  width: auto;
+    object-fit:cover;
+  left: 0;
+  padding-right: 14px;}
+ 
+@media only screen and (max-width: 980px) {
+.et_pb_post a img{
+  float:none;
+  width:200px;
+  height:200px;}} 
+
+  
+  /*feature thumbnails title on blog page*/
+
+ .format-portrait et_pb_post{
+     vertical-align: middle;
+     position: relative;
+     display: flex;
+     align-items: center;
+     align-content: center;
+     justify-content: center;
+
+        .post-content{
+            display: none;
+        }
+ }
+ .format-portrait .entry-title{
+     position: absolute;
+     text-align:center;
+     width: 70%;
+     left:14%;
+     height:20%;
+     top:30%;
+    
+     padding:  1.5em ;
+     vertical-align: middle;
+
+     background-color: rgba(255, 255, 255, 0.5);
+    
+ }
+
+
+
+//.format-portrait .post-content,.format-banniere .post-content{
+//            display: none;
+//        }
+
+    
+
+
+
+
+// HIDDING SIDEBAR
+
+/*** Take out the divider line between content and sidebar ***/
+//#main-content .container:before {background: none;}
+ 
+/*** Hide Sidebar ***/
+//#sidebar {display:none;}
+ 
+/*** Expand the content area to fullwidth ***/
+//@media (min-width: 981px){
+//#left-area {
+ //   width: 100%;
+  //  padding: 23px 0px 0px !important;
+   // float: none !important;
+//}
+//}
