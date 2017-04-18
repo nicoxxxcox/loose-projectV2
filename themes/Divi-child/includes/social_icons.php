@@ -14,7 +14,21 @@
 		</a>
 	</li>
 <?php endif; ?>
+<!--Ajouts des reseaux sociaux manquants-->
 
+<li class="et-social-icon et-social-instagram">
+<a href="https://www.instagram.com/loose_project/" class="icon">
+<span><?php esc_html_e( 'Instagram', 'Divi' ); ?></span>
+</a>
+</li>
+
+<li class="et-social-icon et-social-youtube">
+<a href="https://www.youtube.com/channel/UCTlkcQSr8f679vdCc3CwvtQ" class="icon">
+<span><?php esc_html_e( 'Youtube', 'Divi' ); ?></span>
+</a>
+</li>
+
+<!-- / Ajouts des reseaux sociaux manquants-->
 
 <?php if ( 'on' === et_get_option( 'divi_show_google_icon', 'on' ) ) : ?>
 	<li class="et-social-icon et-social-google-plus">
