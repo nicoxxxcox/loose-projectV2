@@ -24,33 +24,24 @@
      object-fit: cover;
   left: 0;
   padding-right: 14px;
-}
-
-@media only screen and (max-width: 980px) {
-  .et_pb_post a img {
-    float: none;
-    width: 200px;
-    height: 200px;
-  }
-}
+  margin-top: 0; }
 
 /*feature thumbnails title on blog page*/
 .format-portrait et_pb_post {
   vertical-align: middle;
-  position: relative;
-}
+  position: relative; }
 
 .format-portrait .entry-title {
   position: absolute;
   text-align: center;
   width: 70%;
   left: 14%;
-  height: 20%;
-  top: 30%;
-  padding: 1.5em;
+  height: auto;
+  top: 35%;
+  margin-top: 0;
+  padding: 1rem;
   vertical-align: middle;
-  background-color: rgba(255, 255, 255, 0.5);
-}
+  background-color: rgba(255, 255, 255, 0.5); }
 
 /*feature thumbnails banner on blog page*/
 .format-banniere .et_pb_post a img {
@@ -59,34 +50,24 @@
   -o-object-fit: cover;
      object-fit: cover;
   left: 0;
-  padding-right: 14px;
-}
-
-@media only screen and (max-width: 980px) {
-  .et_pb_post a img {
-    float: none;
-    width: 200px;
-    height: 200px;
-  }
-}
+  padding-right: 14px; }
 
 /*feature thumbnails title on blog page*/
 .format-banniere et_pb_post {
   vertical-align: middle;
-  position: relative;
-}
+  position: relative; }
 
 .format-banniere .entry-title {
   position: absolute;
   text-align: center;
-  width: 70%;
-  left: 14%;
-  height: 20%;
-  top: 12%;
-  padding: 1.5em;
+  width: 50%;
+  left: 45%;
+  height: auto;
+  top: 15%;
+  margin-top: 0;
+  padding: 1rem;
   vertical-align: middle;
-  background-color: rgba(255, 255, 255, 0.5);
-}
+  background-color: rgba(255, 255, 255, 0.5); }
 
 /*feature thumbnails portrait on blog page*/
 .format-carre .et_pb_post a img {
@@ -96,30 +77,27 @@
   -o-object-fit: cover;
      object-fit: cover;
   left: 0;
-  padding-right: 14px;
-}
+  padding-right: 14px; }
 
 /*feature thumbnails title on blog carre page*/
 .format-carre et_pb_post {
   vertical-align: middle;
-  position: relative;
-}
+  position: relative; }
 
 .format-carre .entry-title {
   position: absolute;
   text-align: center;
   width: 70%;
   left: 14%;
-  height: 20%;
-  top: 57%;
-  padding: 1.5em;
+  height: auto;
+  top: 20%;
+  margin-top: 0;
+  padding: 1rem;
   vertical-align: middle;
-  background-color: rgba(255, 255, 255, 0.5);
-}
+  background-color: rgba(255, 255, 255, 0.5); }
 
 .format-portrait .post-content, .format-banniere .post-content, .format-carre .post-content {
-  display: none;
-}
+  display: none; }
 
 /*** Take out the divider line between content and sidebar ***/
 /*** Hide Sidebar ***/
