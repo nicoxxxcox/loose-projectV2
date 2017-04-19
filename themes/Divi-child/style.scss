@@ -130,11 +130,8 @@
      width: 70%;
      left:14%;
      height:auto;
-<<<<<<< HEAD
      top:20%;
-=======
-     top:57%;
->>>>>>> develop
+
 
      margin-top:0;
     
@@ -157,7 +154,17 @@
 
 
 
-    
+// customisation instagram feeds 
+
+#sb_instagram .sbi_header_text{
+    h3{
+        font-size: 26px;
+    }
+    .sbi_bio{
+        font-size:16px;
+    }
+}   
+
 
 
 
