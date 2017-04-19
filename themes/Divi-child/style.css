@@ -133,6 +133,12 @@
     height: auto;
     top: 5%; } }
 
+@media (max-width: 980px) {
+  .et_header_style_centered .mobile_nav .select_page {
+    display: none; }
+  .et_header_style_centered #main-header .mobile_nav {
+    background-color: inherit; } }
+
 .format-portrait .post-content, .format-banniere .post-content, .format-carre .post-content {
   display: none; }
 

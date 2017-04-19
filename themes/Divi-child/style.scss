@@ -199,7 +199,18 @@
 
 }
 
+@media (max-width:980px) {
+   //personalisation menu mobile
+   .et_header_style_centered .mobile_nav .select_page{
+       display:none;
+       }
+    .et_header_style_centered #main-header .mobile_nav{
+        background-color: inherit;
+    }
+   
+}
 
+//  FIN reglages responsives
 
 
 // supprimer les extraits de post
