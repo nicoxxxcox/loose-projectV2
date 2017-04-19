@@ -151,6 +151,9 @@
 .category-cust .et_pb_post {
   margin-bottom: 120px; }
 
+#main-footer h4:hover {
+  text-decoration: underline; }
+
 /*** Take out the divider line between content and sidebar ***/
 /*** Hide Sidebar ***/
 /*** Expand the content area to fullwidth ***/
