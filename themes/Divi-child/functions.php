@@ -1,4 +1,4 @@
-<!--ADD NEW GOOGLE FONTS "LORA"-->
+
 <?php
 function et_builder_get_google_fonts() {
 	$google_fonts = array(

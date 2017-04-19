@@ -148,6 +148,9 @@
 #sb_instagram .sbi_header_text .sbi_bio {
   font-size: 16px; }
 
+.category-cust .et_pb_post {
+  margin-bottom: 120px; }
+
 /*** Take out the divider line between content and sidebar ***/
 /*** Hide Sidebar ***/
 /*** Expand the content area to fullwidth ***/
