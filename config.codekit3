@@ -5894,29 +5894,6 @@
 		"opt": 0,
 		"q": 100
 		},
-	"\/themes\/Divi-child\/style.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "\/themes\/Divi-child\/style-min.css",
-		"oF": 0,
-		"oS": 0
-		},
-	"\/themes\/Divi-child\/style.scss": {
-		"aP": 1,
-		"bl": 0,
-		"dP": 10,
-		"dS": 0,
-		"ft": 4,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "\/themes\/Divi-child\/style.css",
-		"oF": 0,
-		"oS": 0,
-		"uL": 1
-		},
 	"\/themes\/Divi\/404.php": {
 		"ft": 8192,
 		"oA": 2,
