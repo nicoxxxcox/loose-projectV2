@@ -20,7 +20,7 @@
 
 // Customisation page d'accueil
 
-
+// ################ PORTRAIT BLOG
 /*feature thumbnails portrait on blog page*/
  
 .format-portrait .et_pb_post a img{
@@ -32,8 +32,7 @@
   left: 0;
   padding-right: 14px;
   margin-top:0; 
-  
-  
+
   }
  
 
@@ -61,7 +60,7 @@
     
  }
 
-
+// ################ BANNER BLOG
 /*feature thumbnails banner on blog page*/
  
 .format-banniere .et_pb_post a img{
@@ -70,19 +69,16 @@
   float: left;
   object-fit:cover;
   left: 0;
-  padding-right: 14px;}
+  padding-right: 14px;
+  }
  
- 
-
   
   /*feature thumbnails title on blog page*/
 
  .format-banniere et_pb_post{
      vertical-align: middle;
      position: relative;
-    
-       
- }
+     }
  .format-banniere .entry-title{
      position: absolute;
      text-align:center;
@@ -96,24 +92,21 @@
      vertical-align: middle;
 
      background-color: rgba(255, 255, 255, 0.5);
-    
- }
+     }
 
 
-
-
-
-
-/*feature thumbnails portrait on blog page*/
+// ################ CARRE BLOG
+/*feature thumbnails carre on blog page*/
  
 .format-carre .et_pb_post a img{
   
-  height: 320px!important;
+  height: 320px;
   float: left;
   width: auto;
-    object-fit:cover;
+  object-fit:cover;
   left: 0;
-  padding-right: 14px;}
+  padding-right: 14px;
+  }
 
 
   /*feature thumbnails title on blog carre page*/
@@ -121,9 +114,7 @@
  .format-carre et_pb_post{
      vertical-align: middle;
      position: relative;
-    
-       
- }
+     }
  .format-carre .entry-title{
      position: absolute;
      text-align:center;
@@ -142,6 +133,71 @@
     
  }
 
+// reglages responsives
+
+@media (min-width:980px) and (max-width:1250px){
+
+    //centrage du titre
+    .format-banniere .entry-title{
+    
+     width: 80%;
+     left:9%;
+     top:11%;
+
+     }
+
+   
+
+}
+@media (min-width:650px) and (max-width:980px) {
+     .format-carre .et_pb_post a img{
+  
+  height: auto;
+  }
+
+  .format-carre .entry-title{
+     position: absolute;
+     text-align:center;
+     width: 70%;
+     left:14%;
+     height:auto;
+     top:33%;
+  }
+}
+
+@media (max-width:550px){
+
+    //centrage du titre
+    .format-banniere .entry-title{
+    
+     width: 80%;
+     left:9%;
+     top:11%;
+
+     }
+
+     .format-carre .et_pb_post a img{
+  
+  height: auto;
+  float: left;
+  width: auto;
+  object-fit:cover;
+  
+  padding-right: 14px;
+  }
+
+  .format-carre .entry-title{
+     position: absolute;
+     text-align:center;
+     width: 70%;
+     left:14%;
+     height:auto;
+     top:5%;
+  }
+
+  
+
+}
 
 
 
