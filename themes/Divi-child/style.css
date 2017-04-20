@@ -160,6 +160,12 @@
 .category-cust .et_pb_post {
   margin-bottom: 120px; }
 
+#sidebar .et_pb_widget li a:before {
+  font-family: "ETmodules";
+  font-size: 16px;
+  font-weight: 800;
+  content: "\45"; }
+
 #sb_instagram .sbi_header_text h3 {
   font-size: 26px; }
 
