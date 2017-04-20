@@ -142,17 +142,17 @@
 .format-portrait .post-content, .format-banniere .post-content, .format-carre .post-content {
   display: none; }
 
+#main-footer h4:hover {
+  text-decoration: underline; }
+
+.category-cust .et_pb_post {
+  margin-bottom: 120px; }
+
 #sb_instagram .sbi_header_text h3 {
   font-size: 26px; }
 
 #sb_instagram .sbi_header_text .sbi_bio {
   font-size: 16px; }
-
-.category-cust .et_pb_post {
-  margin-bottom: 120px; }
-
-#main-footer h4:hover {
-  text-decoration: underline; }
 
 /*** Take out the divider line between content and sidebar ***/
 /*** Hide Sidebar ***/

@@ -135,6 +135,19 @@
 		"oAP": "\/languages\/themes\/twentysixteen-fr_FR.po",
 		"oF": 0
 		},
+	"\/layout-post.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"dS": 0,
+		"ft": 4,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "\/layout-post.css",
+		"oF": 0,
+		"oS": 0,
+		"uL": 1
+		},
 	"\/LICENSE.md": {
 		"cS": 0,
 		"eF": 1,
@@ -5895,6 +5908,45 @@
 		"oA": 2,
 		"oAP": "\/themes\/Divi-child\/includes\/social_icons.php",
 		"oF": 0
+		},
+	"\/themes\/Divi-child\/partials\/instagram-feeds.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"dS": 0,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "\/themes\/Divi-child\/partials\/instagram-feeds.css",
+		"oF": 0,
+		"oS": 0,
+		"uL": 1
+		},
+	"\/themes\/Divi-child\/partials\/layout-category.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"dS": 0,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "\/themes\/Divi-child\/partials\/layout-category.css",
+		"oF": 0,
+		"oS": 0,
+		"uL": 1
+		},
+	"\/themes\/Divi-child\/partials\/layout-home.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"dS": 0,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "\/themes\/Divi-child\/partials\/layout-home.css",
+		"oF": 0,
+		"oS": 0,
+		"uL": 1
 		},
 	"\/themes\/Divi-child\/screenshot.jpg": {
 		"ft": 16384,
