@@ -1,209 +1,182 @@
 // Customisation page d'accueil
-
 // ################ PORTRAIT BLOG
+
 /*feature thumbnails portrait on blog page*/
- 
-.format-portrait .et_pb_post a img{
-  height: 40.625rem !important;
-  height: 650px!important;
-  float: left;
-  width: auto;
-  object-fit:cover;
-  left: 0;
-  padding-right: 14px;
-  margin-top:0; 
 
-  }
- 
+.format-portrait .et_pb_post a img {
+    height: 40.625rem !important;
+    height: 650px!important;
+    float: left;
+    width: auto;
+    object-fit: cover;
+    left: 0;
+    padding-right: 14px;
+    margin-top: 0;
+}
 
-  
-  /*feature thumbnails title on blog page*/
 
- .format-portrait et_pb_post{
-     vertical-align: middle;
-     position: relative;
-     
- }
- .format-portrait .entry-title{
-     position: absolute;
-     text-align:center;
-     width: 70%;
-     left:14%;
-     height:auto;
-     top:35%;
-     margin-top:0;
-    
-     padding:  1rem ;
-     vertical-align: middle;
+/*feature thumbnails title on blog page*/
 
-     background-color: rgba(255, 255, 255, 0.5);
-    
- }
+.format-portrait et_pb_post {
+    vertical-align: middle;
+    position: relative;
+}
+
+.format-portrait .entry-title {
+    position: absolute;
+    text-align: center;
+    width: 70%;
+    left: 14%;
+    height: auto;
+    top: 35%;
+    margin-top: 0;
+    padding: 1rem;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, 0.5);
+}
 
 // ################ BANNER BLOG
+
 /*feature thumbnails banner on blog page*/
- 
-.format-banniere .et_pb_post a img{
- 
-  height: 150px!important;
-  float: left;
-  object-fit:cover;
-  left: 0;
-  padding-right: 14px;
-  }
- 
-  
-  /*feature thumbnails title on blog page*/
 
- .format-banniere et_pb_post{
-     vertical-align: middle;
-     position: relative;
-     }
- .format-banniere .entry-title{
-     position: absolute;
-     text-align:center;
-     width: 50%;
-     left:45%;
-     height:auto;
-     top:15%;
-     margin-top:0;
-    
-     padding:  1rem ;
-     vertical-align: middle;
+.format-banniere .et_pb_post a img {
+    height: 150px!important;
+    float: left;
+    object-fit: cover;
+    left: 0;
+    padding-right: 14px;
+}
 
-     background-color: rgba(255, 255, 255, 0.5);
-     }
 
+/*feature thumbnails title on blog page*/
+
+.format-banniere et_pb_post {
+    vertical-align: middle;
+    position: relative;
+}
+
+.format-banniere .entry-title {
+    position: absolute;
+    text-align: center;
+    width: 50%;
+    left: 45%;
+    height: auto;
+    top: 15%;
+    margin-top: 0;
+    padding: 1rem;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, 0.5);
+}
 
 // ################ CARRE BLOG
+
 /*feature thumbnails carre on blog page*/
- 
-.format-carre .et_pb_post a img{
-  
-  height: 320px;
-  float: left;
-  width: auto;
-  object-fit:cover;
-  left: 0;
-  padding-right: 14px;
-  }
+
+.format-carre .et_pb_post a img {
+    height: 320px;
+    float: left;
+    width: auto;
+    object-fit: cover;
+    left: 0;
+    padding-right: 14px;
+}
 
 
-  /*feature thumbnails title on blog carre page*/
+/*feature thumbnails title on blog carre page*/
 
- .format-carre et_pb_post{
-     vertical-align: middle;
-     position: relative;
-     }
- .format-carre .entry-title{
-     position: absolute;
-     text-align:center;
-     width: 70%;
-     left:14%;
-     height:auto;
-     top:20%;
+.format-carre et_pb_post {
+    vertical-align: middle;
+    position: relative;
+}
 
-
-     margin-top:0;
-    
-     padding:  1rem ;
-     vertical-align: middle;
-
-     background-color: rgba(255, 255, 255, 0.5);
-    
- }
+.format-carre .entry-title {
+    position: absolute;
+    text-align: center;
+    width: 70%;
+    left: 14%;
+    height: auto;
+    top: 20%;
+    margin-top: 0;
+    padding: 1rem;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, 0.5);
+}
 
 // reglages responsives
-
-@media (min-width:980px) and (max-width:1250px){
-
+@media (min-width:980px) and (max-width:1250px) {
     //centrage du titre
-    .format-banniere .entry-title{
-    
-     width: 80%;
-     left:9%;
-     top:11%;
-
-     }
-
-   
-
+    .format-banniere .entry-title {
+        width: 80%;
+        left: 9%;
+        top: 11%;
+    }
 }
+
 @media (min-width:650px) and (max-width:980px) {
-     .format-carre .et_pb_post a img{
-  
-  height: auto;
-  }
-
-  .format-carre .entry-title{
-     position: absolute;
-     text-align:center;
-     width: 70%;
-     left:14%;
-     height:auto;
-     top:33%;
-  }
+    .format-carre .et_pb_post a img {
+        height: auto;
+    }
+    .format-banniere .entry-title {
+        top: 20%;
+    }
+    .format-carre .entry-title {
+        position: absolute;
+        text-align: center;
+        width: 70%;
+        left: 14%;
+        height: auto;
+        top: 33%;
+    }
 }
 
-@media (max-width:550px){
-
+@media (max-width:550px) {
     //centrage du titre
-    .format-banniere .entry-title{
-    
-     width: 80%;
-     left:9%;
-     top:11%;
-
-     }
-
-     .format-carre .et_pb_post a img{
-  
-  height: auto;
-  float: left;
-  width: auto;
-  object-fit:cover;
-  
-  padding-right: 14px;
-  }
-
-  .format-carre .entry-title{
-     position: absolute;
-     text-align:center;
-     width: 70%;
-     left:14%;
-     height:auto;
-     top:5%;
-  }
-
-  
-
+    .format-banniere .entry-title {
+        width: 80%;
+        left: 9%;
+        top: 11%;
+    }
+    .format-carre .et_pb_post a img {
+        height: auto;
+        float: left;
+        width: auto;
+        object-fit: cover;
+        padding-right: 14px;
+    }
+    .format-carre .entry-title {
+        position: absolute;
+        text-align: center;
+        width: 70%;
+        left: 14%;
+        height: auto;
+        top: 5%;
+    }
 }
 
 @media (max-width:980px) {
-   //personalisation menu mobile
-   .et_header_style_centered .mobile_nav .select_page{
-       display:none;
-       }
-    .et_header_style_centered #main-header .mobile_nav{
-        background-color: inherit;
+    //personalisation menu mobile
+    .et_header_style_centered .mobile_nav .select_page {
+        visibility: hidden;
     }
+    .et_header_style_centered #main-header .mobile_nav {
+        background-color: inherit;
+    } 
     
-   
+    //ajustement graisse typo
+    .et_pb_slide_description .et_pb_slide_title {
+        font-weight: 900 !important;
+    }
 }
 
 //  FIN reglages responsives
-
-
 // supprimer les extraits de post
-
-.format-portrait .post-content,.format-banniere .post-content,.format-carre .post-content{
-            display: none;
-        }
+.format-portrait .post-content,
+.format-banniere .post-content,
+.format-carre .post-content {
+    display: none;
+}
 
 // hover effect in footer
-
-#main-footer h4:hover{
-
-        text-decoration: underline;
-
+#main-footer h4:hover {
+    text-decoration: underline;
 }
