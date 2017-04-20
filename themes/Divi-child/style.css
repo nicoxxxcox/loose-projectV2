@@ -143,6 +143,12 @@
   .et_pb_slide_description .et_pb_slide_title {
     font-weight: 900 !important; } }
 
+#top-menu > li:nth-child(2) a:before {
+  content: ".  "; }
+
+#top-menu > li:nth-child(2) a:after {
+  content: "  ."; }
+
 .format-portrait .post-content,
 .format-banniere .post-content,
 .format-carre .post-content {
@@ -158,6 +164,9 @@
   font-size: 26px; }
 
 #sb_instagram .sbi_header_text .sbi_bio {
+  font-size: 16px; }
+
+#sb_instagram #sbi_load .sbi_load_btn, #sb_instagram #sbi_load .sbi_follow_btn a {
   font-size: 16px; }
 
 /*** Take out the divider line between content and sidebar ***/

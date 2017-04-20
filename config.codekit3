@@ -153,6 +153,12 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"\/mu-plugins\/local-by-flywheel-demo-urls.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/mu-plugins\/local-by-flywheel-demo-urls.php",
+		"oF": 0
+		},
 	"\/plugins\/akismet\/.htaccess": {
 		"ft": 8192,
 		"oA": 2,

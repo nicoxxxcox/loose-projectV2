@@ -168,6 +168,14 @@
     }
 }
 
+//personalisation menu horizontal
+#top-menu > li:nth-child(2) a:before{
+    content: ".  ";
+}
+#top-menu > li:nth-child(2) a:after{
+    content: "  .";
+}
+
 //  FIN reglages responsives
 // supprimer les extraits de post
 .format-portrait .post-content,
