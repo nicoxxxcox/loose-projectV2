@@ -5941,6 +5941,19 @@
 		"oS": 0,
 		"uL": 1
 		},
+	"\/themes\/Divi-child\/partials\/layout-navigation.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"dS": 0,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "\/themes\/Divi-child\/partials\/layout-navigation.css",
+		"oF": 0,
+		"oS": 0,
+		"uL": 1
+		},
 	"\/themes\/Divi-child\/partials\/layout-post.scss": {
 		"aP": 1,
 		"bl": 0,
