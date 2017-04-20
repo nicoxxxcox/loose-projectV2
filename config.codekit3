@@ -153,12 +153,6 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"\/mu-plugins\/local-by-flywheel-demo-urls.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/mu-plugins\/local-by-flywheel-demo-urls.php",
-		"oF": 0
-		},
 	"\/plugins\/akismet\/.htaccess": {
 		"ft": 8192,
 		"oA": 2,
@@ -5928,19 +5922,6 @@
 		"oS": 0,
 		"uL": 1
 		},
-	"\/themes\/Divi-child\/partials\/layout-home.scss": {
-		"aP": 1,
-		"bl": 0,
-		"dP": 10,
-		"dS": 0,
-		"ft": 4,
-		"ma": 0,
-		"oA": 1,
-		"oAP": "\/themes\/Divi-child\/partials\/layout-home.css",
-		"oF": 0,
-		"oS": 0,
-		"uL": 1
-		},
 	"\/themes\/Divi-child\/partials\/layout-navigation.scss": {
 		"aP": 1,
 		"bl": 0,
@@ -5976,16 +5957,6 @@
 		"oIPL": 0,
 		"opt": 0,
 		"q": 100
-		},
-	"\/themes\/Divi-child\/style.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "\/themes\/Divi-child\/style-min.css",
-		"oF": 0,
-		"oS": 0
 		},
 	"\/themes\/Divi-child\/style.scss": {
 		"aP": 1,
