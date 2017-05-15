@@ -427,10 +427,10 @@ function et_builder_get_google_fonts() {
 			'character_set' => 'latin,latin-ext',
 			'type'			=> 'sans-serif',
 		),
-        'Lora' => array(
-			'styles' 		=> '400,400italic,700,700italic',
-			'character_set' => 'latin,latin-ext',
-			'type'			=> 'serif',
+        'Pontano Sans' => array(
+			'styles' 		=> '400',
+			'character_set' => 'latin',
+			'type'			=> 'sans-serif',
 		),
 	);
 

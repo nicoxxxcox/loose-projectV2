@@ -3,7 +3,7 @@
 Plugin Name: Google Analytics Counter Tracker
 
 Description: Google analytics counter tracker - analyse the visitors hits on you website and display it graphically
-Version: 3.5.4
+Version: 3.5.6
 Author: WPAdm
 Domain Path: /languages
 Text Domain: analytics-counter

@@ -1170,6 +1170,12 @@
 		"oAP": "\/plugins\/monarch\/changelog.txt",
 		"oF": 0
 		},
+	"\/plugins\/monarch\/core\/_metadata.php": {
+		"ft": 8192,
+		"oA": 1,
+		"oAP": "\/plugins\/monarch\/core\/_metadata.php",
+		"oF": 0
+		},
 	"\/plugins\/monarch\/core\/admin\/css\/core.css": {
 		"aP": 1,
 		"bl": 0,
@@ -1272,42 +1278,6 @@
 		"oF": 0,
 		"opt": 0
 		},
-	"\/plugins\/monarch\/core\/admin\/includes\/assets.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/admin\/includes\/assets.php",
-		"oF": 0
-		},
-	"\/plugins\/monarch\/core\/admin\/includes\/cache.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/admin\/includes\/cache.php",
-		"oF": 0
-		},
-	"\/plugins\/monarch\/core\/admin\/includes\/class-cache.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/admin\/includes\/class-cache.php",
-		"oF": 0
-		},
-	"\/plugins\/monarch\/core\/admin\/includes\/class-portability.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/admin\/includes\/class-portability.php",
-		"oF": 0
-		},
-	"\/plugins\/monarch\/core\/admin\/includes\/class-updates.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/admin\/includes\/class-updates.php",
-		"oF": 0
-		},
-	"\/plugins\/monarch\/core\/admin\/includes\/portability.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/admin\/includes\/portability.php",
-		"oF": 0
-		},
 	"\/plugins\/monarch\/core\/admin\/js\/core.js": {
 		"ft": 64,
 		"mi": 1,
@@ -1326,10 +1296,220 @@
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/monarch\/core\/components.php": {
+	"\/plugins\/monarch\/core\/components\/api\/email\/_ProviderName.php": {
+		"ft": 8192,
+		"oA": 1,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/_ProviderName.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/ActiveCampaign.php": {
 		"ft": 8192,
 		"oA": 2,
-		"oAP": "\/plugins\/monarch\/core\/components.php",
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/ActiveCampaign.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Aweber.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Aweber.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/CampaignMonitor.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/CampaignMonitor.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/ConvertKit.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/ConvertKit.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Emma.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Emma.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Feedblitz.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Feedblitz.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/GetResponse.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/GetResponse.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Infusionsoft.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Infusionsoft.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/init.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/init.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/MailChimp.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/MailChimp.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/MailerLite.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/MailerLite.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Mailster.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Mailster.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Ontraport.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Ontraport.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Provider.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Provider.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/Providers.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/Providers.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/SalesForce.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/SalesForce.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/email\/SendinBlue.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/email\/SendinBlue.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/init.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/init.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/OAuthHelper.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/OAuthHelper.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/README.md": {
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"eLB": 0,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 0,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/README.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/Service.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/Service.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/api\/social\/Network.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/api\/social\/Network.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/Cache.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/Cache.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/data\/Utils.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/data\/Utils.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/HTTPInterface.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/HTTPInterface.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/lib\/OAuth.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/lib\/OAuth.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/lib\/WPHttp.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/lib\/WPHttp.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/Logger.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/Logger.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/Portability.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/Portability.php",
+		"oF": 0
+		},
+	"\/plugins\/monarch\/core\/components\/README.md": {
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"eLB": 0,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 0,
+		"oAP": "\/plugins\/monarch\/core\/components\/README.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"\/plugins\/monarch\/core\/components\/Updates.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/monarch\/core\/components\/Updates.php",
 		"oF": 0
 		},
 	"\/plugins\/monarch\/core\/functions.php": {
@@ -1739,6 +1919,16 @@
 		"oA": 2,
 		"oAP": "\/plugins\/monarch\/core\/updates_init.php",
 		"oF": 0
+		},
+	"\/plugins\/monarch\/css\/admin-rtl.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "\/plugins\/monarch\/css\/admin-rtl-min.css",
+		"oF": 0,
+		"oS": 0
 		},
 	"\/plugins\/monarch\/css\/admin.css": {
 		"aP": 1,
@@ -3149,153 +3339,153 @@
 		"oAP": "\/plugins\/wordpress-seo\/admin\/views\/user-profile.php",
 		"oF": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/admin-global-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/admin-global-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/admin-global-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/admin-global-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/adminbar-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/adminbar-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/adminbar-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/adminbar-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/alerts-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/alerts-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/alerts-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/alerts-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dashboard-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dashboard-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dashboard-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dashboard-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/admin-global-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/admin-global-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/admin-global-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/admin-global-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/adminbar-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/adminbar-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/adminbar-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/adminbar-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/alerts-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/alerts-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/alerts-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/alerts-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/dashboard-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/dashboard-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/dashboard-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/dashboard-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/edit-page-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/edit-page-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/edit-page-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/edit-page-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/featured-image-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/featured-image-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/featured-image-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/featured-image-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/help-center-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/help-center-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/help-center-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/help-center-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/inside-editor-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/inside-editor-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/inside-editor-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/inside-editor-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/kb-search-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/kb-search-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/kb-search-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/kb-search-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/metabox-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/metabox-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/metabox-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/metabox-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/metabox-primary-category-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/metabox-primary-category-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/metabox-primary-category-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/metabox-primary-category-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
@@ -3309,173 +3499,173 @@
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/snippet-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/snippet-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/snippet-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/snippet-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/toggle-switch-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/toggle-switch-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/toggle-switch-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/toggle-switch-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/wpseo-dismissible-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/wpseo-dismissible-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/wpseo-dismissible-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/wpseo-dismissible-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/yoast-components-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/yoast-components-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yoast-components-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yoast-components-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/yoast-extensions-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/yoast-extensions-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yoast-extensions-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yoast-extensions-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/yst_plugin_tools-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/yst_plugin_tools-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yst_plugin_tools-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yst_plugin_tools-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/dist\/yst_seo_score-460-rtl.min.css": {
+	"\/plugins\/wordpress-seo\/css\/dist\/yst_seo_score-471-rtl.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yst_seo_score-460-rtl.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/dist\/yst_seo_score-471-rtl.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/edit-page-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/edit-page-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/edit-page-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/edit-page-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/featured-image-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/featured-image-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/featured-image-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/featured-image-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/help-center-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/help-center-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/help-center-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/help-center-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/inside-editor-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/inside-editor-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/inside-editor-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/inside-editor-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/kb-search-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/kb-search-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/kb-search-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/kb-search-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/metabox-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/metabox-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/metabox-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/metabox-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/metabox-primary-category-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/metabox-primary-category-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/metabox-primary-category-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/metabox-primary-category-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/snippet-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/snippet-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/snippet-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/snippet-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/toggle-switch-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/toggle-switch-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/toggle-switch-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/toggle-switch-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/wpseo-dismissible-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/wpseo-dismissible-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/wpseo-dismissible-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/wpseo-dismissible-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
@@ -3485,43 +3675,43 @@
 		"oAP": "\/plugins\/wordpress-seo\/css\/xml-sitemap-xsl.php",
 		"oF": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/yoast-components-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/yoast-components-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/yoast-components-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/yoast-components-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/yoast-extensions-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/yoast-extensions-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/yoast-extensions-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/yoast-extensions-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/yst_plugin_tools-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/yst_plugin_tools-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/yst_plugin_tools-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/yst_plugin_tools-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
-	"\/plugins\/wordpress-seo\/css\/yst_seo_score-460.min.css": {
+	"\/plugins\/wordpress-seo\/css\/yst_seo_score-471.min.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/css\/yst_seo_score-460.min-min.css",
+		"oAP": "\/plugins\/wordpress-seo\/css\/yst_seo_score-471.min-min.css",
 		"oF": 0,
 		"oS": 0
 		},
@@ -4147,11 +4337,11 @@
 		"oAP": "\/plugins\/wordpress-seo\/index.php",
 		"oF": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/configuration-wizard-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/configuration-wizard-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/configuration-wizard-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/configuration-wizard-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
@@ -4197,6 +4387,24 @@
 		"mi": 1,
 		"oA": 0,
 		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/select2\/i18n\/ca-min.js",
+		"oF": 0,
+		"sC": 1,
+		"tS": 0
+		},
+	"\/plugins\/wordpress-seo\/js\/dist\/select2\/i18n\/cs.js": {
+		"ft": 64,
+		"mi": 1,
+		"oA": 0,
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/select2\/i18n\/cs-min.js",
+		"oF": 0,
+		"sC": 1,
+		"tS": 0
+		},
+	"\/plugins\/wordpress-seo\/js\/dist\/select2\/i18n\/da.js": {
+		"ft": 64,
+		"mi": 1,
+		"oA": 0,
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/select2\/i18n\/da-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
@@ -4588,128 +4796,128 @@
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-global-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-global-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-global-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-global-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-gsc-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-gsc-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-gsc-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-gsc-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-media-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-media-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-media-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-admin-media-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-bulk-editor-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-bulk-editor-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-bulk-editor-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-bulk-editor-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-dismissible-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-dismissible-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-dismissible-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-dismissible-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-featured-image-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-featured-image-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-featured-image-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-featured-image-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-category-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-category-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-category-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-metabox-category-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-post-scraper-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-post-scraper-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-post-scraper-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-post-scraper-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-recalculate-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-recalculate-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-recalculate-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-recalculate-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-replacevar-plugin-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-replacevar-plugin-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-replacevar-plugin-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-replacevar-plugin-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-shortcode-plugin-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-shortcode-plugin-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-shortcode-plugin-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-shortcode-plugin-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
 		},
-	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-term-scraper-460.min.js": {
+	"\/plugins\/wordpress-seo\/js\/dist\/wp-seo-term-scraper-471.min.js": {
 		"ft": 64,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-term-scraper-460.min-min.js",
+		"oAP": "\/plugins\/wordpress-seo\/js\/dist\/wp-seo-term-scraper-471.min-min.js",
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
@@ -5398,6 +5606,24 @@
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/composer\/autoload_static.php",
 		"oF": 0
 		},
+	"\/plugins\/wordpress-seo\/vendor\/composer\/ClassLoader.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/composer\/ClassLoader.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/composer\/ClassLoader52.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/composer\/ClassLoader52.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/composer\/LICENSE": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/composer\/LICENSE",
+		"oF": 0
+		},
 	"\/plugins\/wordpress-seo\/vendor\/xrstf\/composer-php52\/lib\/xrstf\/Composer52\/AutoloadGenerator.php": {
 		"ft": 8192,
 		"oA": 2,
@@ -5408,6 +5634,12 @@
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/xrstf\/composer-php52\/lib\/xrstf\/Composer52\/ClassLoader.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/xrstf\/composer-php52\/lib\/xrstf\/Composer52\/Generator.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/xrstf\/composer-php52\/lib\/xrstf\/Composer52\/Generator.php",
 		"oF": 0
 		},
 	"\/plugins\/wordpress-seo\/vendor\/xrstf\/composer-php52\/LICENSE": {
@@ -5500,10 +5732,22 @@
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/config.php",
 		"oF": 0
 		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/external\/URITemplateParser.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/external\/URITemplateParser.php",
+		"oF": 0
+		},
 	"\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/Google_Client.php": {
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/Google_Client.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/io\/cacerts.pem": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/io\/cacerts.pem",
 		"oF": 0
 		},
 	"\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/io\/Google_CacheParser.php": {
@@ -5570,6 +5814,12 @@
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/service\/Google_ServiceResource.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/service\/Google_Utils.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/api-libs\/google\/service\/Google_Utils.php",
 		"oF": 0
 		},
 	"\/plugins\/wordpress-seo\/vendor\/yoast\/i18n-module\/CHANGELOG.md": {
@@ -5698,6 +5948,17 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/images\/wp-message.png": {
+		"ft": 32768,
+		"iS": 276951,
+		"oA": 0,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/images\/wp-message.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
 	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/LICENSE": {
 		"ft": 8192,
 		"oA": 2,
@@ -5770,6 +6031,42 @@
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/interfaces\/Whip_VersionDetector.php",
 		"oF": 0
 		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_BasicMessage.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_BasicMessage.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_HostMessage.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_HostMessage.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_InvalidVersionRequirementMessage.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_InvalidVersionRequirementMessage.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_NullMessage.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_NullMessage.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_UpgradePhpMessage.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/messages\/Whip_UpgradePhpMessage.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/presenters\/Whip_WPMessagePresenter.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/presenters\/Whip_WPMessagePresenter.php",
+		"oF": 0
+		},
 	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/Whip_Configuration.php": {
 		"ft": 8192,
 		"oA": 2,
@@ -5804,6 +6101,12 @@
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/src\/Whip_VersionRequirement.php",
+		"oF": 0
+		},
+	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/tests\/bootstrap.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/tests\/bootstrap.php",
 		"oF": 0
 		},
 	"\/plugins\/wordpress-seo\/vendor\/yoast\/whip\/tests\/ConfigurationTest.php": {
@@ -5922,6 +6225,19 @@
 		"oS": 0,
 		"uL": 1
 		},
+	"\/themes\/Divi-child\/partials\/layout-home.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"dS": 0,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "\/themes\/Divi-child\/partials\/layout-home.css",
+		"oF": 0,
+		"oS": 0,
+		"uL": 1
+		},
 	"\/themes\/Divi-child\/partials\/layout-navigation.scss": {
 		"aP": 1,
 		"bl": 0,
@@ -5958,6 +6274,16 @@
 		"opt": 0,
 		"q": 100
 		},
+	"\/themes\/Divi-child\/style.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "\/themes\/Divi-child\/style-min.css",
+		"oF": 0,
+		"oS": 0
+		},
 	"\/themes\/Divi-child\/style.scss": {
 		"aP": 1,
 		"bl": 0,
@@ -5987,6 +6313,12 @@
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/themes\/Divi\/comments.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/_metadata.php": {
+		"ft": 8192,
+		"oA": 1,
+		"oAP": "\/themes\/Divi\/core\/_metadata.php",
 		"oF": 0
 		},
 	"\/themes\/Divi\/core\/admin\/css\/core.css": {
@@ -6091,42 +6423,6 @@
 		"oF": 0,
 		"opt": 0
 		},
-	"\/themes\/Divi\/core\/admin\/includes\/assets.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/admin\/includes\/assets.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/core\/admin\/includes\/cache.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/admin\/includes\/cache.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/core\/admin\/includes\/class-cache.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/admin\/includes\/class-cache.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/core\/admin\/includes\/class-portability.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/admin\/includes\/class-portability.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/core\/admin\/includes\/class-updates.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/admin\/includes\/class-updates.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/core\/admin\/includes\/portability.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/admin\/includes\/portability.php",
-		"oF": 0
-		},
 	"\/themes\/Divi\/core\/admin\/js\/core.js": {
 		"ft": 64,
 		"mi": 1,
@@ -6145,10 +6441,220 @@
 		"sC": 1,
 		"tS": 0
 		},
-	"\/themes\/Divi\/core\/components.php": {
+	"\/themes\/Divi\/core\/components\/api\/email\/_ProviderName.php": {
+		"ft": 8192,
+		"oA": 1,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/_ProviderName.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/ActiveCampaign.php": {
 		"ft": 8192,
 		"oA": 2,
-		"oAP": "\/themes\/Divi\/core\/components.php",
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/ActiveCampaign.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Aweber.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Aweber.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/CampaignMonitor.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/CampaignMonitor.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/ConvertKit.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/ConvertKit.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Emma.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Emma.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Feedblitz.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Feedblitz.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/GetResponse.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/GetResponse.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Infusionsoft.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Infusionsoft.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/init.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/init.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/MailChimp.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/MailChimp.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/MailerLite.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/MailerLite.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Mailster.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Mailster.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Ontraport.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Ontraport.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Provider.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Provider.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/Providers.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/Providers.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/SalesForce.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/SalesForce.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/email\/SendinBlue.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/email\/SendinBlue.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/init.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/init.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/OAuthHelper.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/OAuthHelper.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/README.md": {
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"eLB": 0,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 0,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/README.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/Service.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/Service.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/api\/social\/Network.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/api\/social\/Network.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/Cache.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/Cache.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/data\/Utils.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/data\/Utils.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/HTTPInterface.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/HTTPInterface.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/lib\/OAuth.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/lib\/OAuth.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/lib\/WPHttp.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/lib\/WPHttp.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/Logger.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/Logger.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/Portability.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/Portability.php",
+		"oF": 0
+		},
+	"\/themes\/Divi\/core\/components\/README.md": {
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"eLB": 0,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 0,
+		"oAP": "\/themes\/Divi\/core\/components\/README.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"\/themes\/Divi\/core\/components\/Updates.php": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/themes\/Divi\/core\/components\/Updates.php",
 		"oF": 0
 		},
 	"\/themes\/Divi\/core\/functions.php": {
@@ -8975,6 +9481,15 @@
 		"sC": 1,
 		"tS": 0
 		},
+	"\/themes\/Divi\/includes\/builder\/scripts\/library_category.js": {
+		"ft": 64,
+		"mi": 1,
+		"oA": 0,
+		"oAP": "\/themes\/Divi\/includes\/builder\/scripts\/library_category-min.js",
+		"oF": 0,
+		"sC": 1,
+		"tS": 0
+		},
 	"\/themes\/Divi\/includes\/builder\/scripts\/library_scripts.js": {
 		"ft": 64,
 		"mi": 1,
@@ -9145,84 +9660,6 @@
 		"oAP": "\/themes\/Divi\/includes\/builder\/styles\/widgets-min.css",
 		"oF": 0,
 		"oS": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_api.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_api.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_collection.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_collection.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_entry.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_entry.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_entry_data_array.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_entry_data_array.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_response.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/aweber_response.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/curl_object.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/curl_object.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/curl_response.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/curl_response.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/exceptions.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/exceptions.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/LICENSE": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/LICENSE",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/oauth_adapter.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/oauth_adapter.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/aweber\/oauth_application.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/aweber\/oauth_application.php",
-		"oF": 0
-		},
-	"\/themes\/Divi\/includes\/builder\/subscription\/mailchimp\/mailchimp.php": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/themes\/Divi\/includes\/builder\/subscription\/mailchimp\/mailchimp.php",
-		"oF": 0
 		},
 	"\/themes\/Divi\/includes\/builder\/template-preview.php": {
 		"ft": 8192,

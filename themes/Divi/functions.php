@@ -12,10 +12,6 @@ function et_setup_theme() {
 
 	$template_directory = get_template_directory();
 
-	$theme_version = et_get_theme_version();
-
-	define( 'ET_CORE_VERSION', $theme_version );
-
 	require_once( $template_directory . '/core/init.php' );
 
 	et_core_setup( get_template_directory_uri() );
@@ -8762,4 +8758,3 @@ function et_get_footer_credits() {
 	return et_get_safe_localization( sprintf( $credits_format, $footer_credits, 'div' ) );
 }
 endif;
-

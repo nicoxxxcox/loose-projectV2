@@ -92,16 +92,16 @@ if($type == 'empty_token') {
                 <div class="col-xs-offset-1 col-xs-10">
                     <div class="checkbox">
                         <?php if (isset($_GET['modal'])): ?>
-                            <input type="checkbox" name="ga-menuOnlyAdmin" id="ga-menuOnlyAdmin" value="1" <?php if($ga_accout_form->getValue('ga-menuOnlyAdmin')) echo 'checked="checked"'; ?>><label for="ga-menuOnlyAdmin"> Appear in menu for admins only</label>
+                            <input type="checkbox" name="ga-menuOnlyAdmin" id="ga-menuOnlyAdmin" value="1" <?php if($ga_accout_form->getValue('ga-menuOnlyAdmin')) echo 'checked="checked"'; ?>><label for="ga-menuOnlyAdmin"> <?php _e('Appear in menu for admins only', 'analytics-counter');?></label>
                         <?php else: ?>
-                            <label for="ga-menuOnlyAdmin"><input type="checkbox" name="ga-menuOnlyAdmin" id="ga-menuOnlyAdmin" value="1" <?php if($ga_accout_form->getValue('ga-menuOnlyAdmin')) echo 'checked="checked"'; ?>> Appear in menu for admins only</label>
+                            <label for="ga-menuOnlyAdmin"><input type="checkbox" name="ga-menuOnlyAdmin" id="ga-menuOnlyAdmin" value="1" <?php if($ga_accout_form->getValue('ga-menuOnlyAdmin')) echo 'checked="checked"'; ?>> <?php _e('Appear in menu for admins only', 'analytics-counter');?></label>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-xs-offset-1 col-xs-10">
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" class="btn btn-success"><?php _e('Save', 'analytics-counter');?></button>
                 </div>
             </div>
 	        
@@ -157,7 +157,7 @@ gapi.analytics.ready(function () {
 
         var  accounts = results.items;
         if (accounts.length == 0) {
-            setStatusError('ga-accounts-container-loading', '<?php _e('User does not have any Google Analytics account', 'analytics-counter');?>');
+            setStatusError('ga-accounts-container-loading', "<?php _e('User does not have any Google Analytics account', 'analytics-counter');?>");
             jQuery('#ga-accounts-container-loading').hide();
             return;
         }

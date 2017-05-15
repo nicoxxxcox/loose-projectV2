@@ -1,7 +1,7 @@
 /*
 Theme Name: Divi
 Theme URI: http://www.elegantthemes.com/gallery/divi/
-Version: 3.0.40
+Version: 3.0.45
 Description: Smart. Flexible. Beautiful. Divi is the most powerful theme in our collection.
 Author: Elegant Themes
 Author URI: http://www.elegantthemes.com
@@ -1967,6 +1967,7 @@ body.single .et_audio_content {
 
 /* WooCommerce */
 p.demo_store {
+	position: fixed !important;
 	z-index: 100000;
 	top: auto !important;
 	bottom: 0 !important;
@@ -9865,12 +9866,18 @@ body.iphone .et_pb_section_video_bg video::-webkit-media-controls-start-playback
 
 /* Divider Module */
 .et_pb_space {
+	display: inline-block;
+	width: 100%;
 	border: none;
+	vertical-align: top;
 }
 
 .et_pb_divider {
+	display: inline-block;
 	position: relative;
+	width: 100%;
 	margin: 0 0 30px 0;
+	vertical-align: top;
 }
 
 .et_pb_divider:before {
@@ -9952,11 +9959,6 @@ body.ie .et_pb_divider {
 	justify-content: center;
 }
 
-/* fix vertical alignment in IE */
-.et_pb_fullscreen .et_pb_fullwidth_header_container.center {
-	height: 1px;
-}
-
 .et_pb_fullscreen .et_pb_fullwidth_header_container.center.bottom-bottom {
 	-webkit-flex-flow: column wrap;
 	-moz-flex-flow: column wrap;
@@ -9969,10 +9971,10 @@ body.ie .et_pb_divider {
 }
 
 .et_pb_fullscreen .et_pb_fullwidth_header_container.center.center-center {
-	-webkit-flex-flow: column wrap;
-	-moz-flex-flow: column wrap;
-	-ms-flex-flow: column wrap;
-	flex-flow: column wrap;
+	-webkit-flex-flow: column nowrap;
+	-moz-flex-flow: column nowrap;
+	-ms-flex-flow: column nowrap;
+	flex-flow: column nowrap;
 }
 
 .et_pb_fullscreen .et_pb_fullwidth_header_container.center.center-bottom .header-content-container {
@@ -10568,6 +10570,14 @@ body.ie .et_pb_divider {
 .et_pb_fullwidth_portfolio .et_pb_portfolio_image h3 {
 	margin-top: 40%;
 	padding: 0 5px;
+}
+
+.et_pb_fullwidth_portfolio .et_pb_portfolio_image .et_overlay + p.post-meta {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: 100%;
+	transform: translateY(-50%);
 }
 
 .et_pb_fullwidth_portfolio .et_pb_portfolio_image:hover h3 {

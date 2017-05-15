@@ -24,6 +24,8 @@ class ET_Builder_Element {
 	public $used_tabs = array();
 	public $custom_css_tab;
 	public $fb_support = false;
+	public $dbl_quote_exception_options = array( 'et_pb_font_icon', 'et_pb_button_one_icon', 'et_pb_button_two_icon', 'et_pb_button_icon', 'et_pb_content_new' );
+	public $options_toggles = array();
 
 	// number of times shortcode_callback function has been executed
 	private $_shortcode_callback_num;
@@ -103,6 +105,24 @@ class ET_Builder_Element {
 		$this->_style_priority = (int) self::DEFAULT_PRIORITY;
 		if ( isset( $this->type ) && 'child' === $this->type ) {
 			$this->_style_priority = $this->_style_priority + 1;
+		} else {
+			// add default toggles
+			$default_general_toggles = array(
+				'admin_label' => array(
+					'title'    => esc_html__( 'Admin Label', 'et_builder' ),
+					'priority' => 99,
+				),
+			);
+
+			$default_advanced_toggles = array(
+				'visibility' => array(
+					'title'    => esc_html__( 'Visibility', 'et_builder' ),
+					'priority' => 99,
+				),
+			);
+
+			$this->_add_option_toggles( 'general', $default_general_toggles );
+			$this->_add_option_toggles( 'custom_css', $default_advanced_toggles );
 		}
 
 		$this->main_tabs = $this->get_main_tabs();
@@ -249,7 +269,7 @@ class ET_Builder_Element {
 		$font_icon_options = array( 'font_icon', 'button_icon', 'button_one_icon', 'button_two_icon' );
 
 		foreach ( $this->shortcode_atts as $attribute_key => $attribute_value ) {
-			$shortcode_attributes[ $attribute_key ] = in_array( $attribute_key, $font_icon_options ) || preg_match( "/^\%\%\d+\%\%$/i", $attribute_value ) ? $attribute_value : str_replace( array( '%22', '%92' ), array( '"', '\\' ), $attribute_value );
+			$shortcode_attributes[ $attribute_key ] = in_array( $attribute_key, $font_icon_options ) || preg_match( "/^\%\%\d+\%\%$/i", $attribute_value ) ? $attribute_value : str_replace( array( '%22', '%92', '%91', '%93' ), array( '"', '\\', '&#91;', '&#93;' ), $attribute_value );
 		}
 
 		$this->shortcode_atts = $shortcode_attributes;
@@ -362,6 +382,8 @@ class ET_Builder_Element {
 
 		$post_id = apply_filters( 'et_is_ab_testing_active_post_id', get_the_ID() );
 
+		$global_module_id = $this->shortcode_atts['global_module'];
+
 		// If the section/row/module is disabled, hide it
 		if ( isset( $this->shortcode_atts['disabled'] ) && 'on' === $this->shortcode_atts['disabled'] && ! $et_fb_processing_shortcode_object ) {
 			return;
@@ -395,12 +417,23 @@ class ET_Builder_Element {
 		}
 
 		//override module attributes for global module. Skip that step while processing Frontend Builder object
-		if ( ! empty( $this->shortcode_atts['global_module'] ) && ! $et_fb_processing_shortcode_object ) {
-			$global_content = et_pb_load_global_module( $this->shortcode_atts['global_module'] );
+		if ( ! empty( $global_module_id ) && ! $et_fb_processing_shortcode_object ) {
+			$global_content = et_pb_load_global_module( $global_module_id );
 
 			if ( '' !== $global_content ) {
-				if ( false !== strpos( $this->shortcode_atts['saved_tabs'], 'general' ) || 'all' === $this->shortcode_atts['saved_tabs'] ) {
-					$global_shortcode_content = et_pb_extract_shortcode_content( $global_content, $function_name );
+				$unsynced_global_attributes = get_post_meta( $global_module_id, '_et_pb_excluded_global_options' );
+				$use_updated_global_sync_method = ! empty( $unsynced_global_attributes );
+
+				$unsynced_options = ! empty( $unsynced_global_attributes[0] ) ? json_decode( $unsynced_global_attributes[0], true ) : array() ;
+				$content_synced = $use_updated_global_sync_method && ! in_array( 'et_pb_content_field', $unsynced_options );
+
+				// support legacy selective sync system
+				if ( ! $use_updated_global_sync_method ) {
+					$content_synced = ! isset( $this->shortcode_atts['saved_tabs'] ) || false !== strpos( $this->shortcode_atts['saved_tabs'], 'general' ) || 'all' === $this->shortcode_atts['saved_tabs'];
+				}
+
+				if ( $content_synced ) {
+					$global_shortcode_content = et_pb_fix_shortcodes( wpautop( et_pb_extract_shortcode_content( $global_content, $function_name ) ) );
 				}
 
 				// cleanup the shortcode string to avoid the attributes messing with content
@@ -408,8 +441,9 @@ class ET_Builder_Element {
 				$global_atts = shortcode_parse_atts( $global_content_processed );
 
 				foreach( $this->shortcode_atts as $single_attr => $value ) {
-					if ( isset( $global_atts[$single_attr] ) ) {
-						$this->shortcode_atts[$single_attr] = $global_atts[$single_attr];
+					if ( isset( $global_atts[$single_attr] ) && ! in_array( $single_attr, $unsynced_options ) ) {
+						// replace %22 with double quotes in options to make sure it's rendered correctly
+						$this->shortcode_atts[$single_attr] = is_string( $global_atts[$single_attr] ) && ! in_array( $single_attr, $this->dbl_quote_exception_options ) ? str_replace( '%22', '"', $global_atts[$single_attr] ) : $global_atts[$single_attr];
 					}
 				}
 			}
@@ -562,14 +596,45 @@ class ET_Builder_Element {
 		$fields = $this->process_fields( $this->fields_unprocessed );
 		$global_shortcode_content = false;
 		$function_name_processed = et_fb_prepare_tag( $function_name );
+		$unsynced_global_attributes = array();
+		$use_updated_global_sync_method = false;
+		$global_module_id = isset( $atts['global_module'] ) ? $atts['global_module'] : false;
+		$is_global_template = false;
+
+		// Add support of new selective sync feature for library modules in VB
+		if ( isset( $_POST['et_post_type'], $_POST['et_post_id'], $_POST['et_layout_type'] ) && 'et_pb_layout' === $_POST['et_post_type'] && 'module' === $_POST['et_layout_type'] ) {
+			$template_scope = wp_get_object_terms( $_POST['et_post_id'], 'scope' );
+			$is_global_template = ! empty( $template_scope[0] ) && 'global' === $template_scope[0]->slug;
+
+			if ( $is_global_template ) {
+				$global_module_id = $_POST['et_post_id'];
+			}
+		}
 
 		//override module attributes for global module
-		if ( ! empty( $atts['global_module'] ) ) {
-			$global_content = et_pb_load_global_module( $atts['global_module'] );
+		if ( ! empty( $global_module_id ) ) {
+			if ( ! in_array( $function_name, array( 'et_pb_section', 'et_pb_row', 'et_pb_row_inner', 'et_pb_column', 'et_pb_column_inner' ) ) ) {
+				$processing_global_module = $global_module_id;
+				$unsynced_global_attributes = get_post_meta( $processing_global_module, '_et_pb_excluded_global_options' );
+				$use_updated_global_sync_method = ! empty( $unsynced_global_attributes );
+			}
+
+			$global_content = et_pb_load_global_module( $global_module_id );
 
 			if ( '' !== $global_content ) {
-				if ( ! isset( $atts['saved_tabs'] ) || false !== strpos( $atts['saved_tabs'], 'general' ) || 'all' === $atts['saved_tabs'] ) {
-					$global_shortcode_content = et_pb_extract_shortcode_content( $global_content, $function_name_processed );
+				$unsynced_options = ! empty( $unsynced_global_attributes[0] ) ? json_decode( $unsynced_global_attributes[0], true ) : array() ;
+				$content_synced = $use_updated_global_sync_method && ! in_array( 'et_pb_content_field', $unsynced_options );
+				$is_module_fully_global = $use_updated_global_sync_method && empty( $unsynced_options );
+				$unsynced_legacy_options = array();
+
+				// support legacy selective sync system
+				if ( ! $use_updated_global_sync_method ) {
+					$content_synced = ! isset( $atts['saved_tabs'] ) || false !== strpos( $atts['saved_tabs'], 'general' ) || 'all' === $atts['saved_tabs'];
+					$is_module_fully_global = ! isset( $atts['saved_tabs'] ) || 'all' === $atts['saved_tabs'];
+				}
+
+				if ( $content_synced && ! $is_global_template ) {
+					$global_shortcode_content = et_pb_fix_shortcodes( wpautop( et_pb_extract_shortcode_content( $global_content, $function_name_processed ) ) );
 				}
 
 				// remove the shortcode content to avoid conflicts of parent attributes with similar attrs from child modules
@@ -581,7 +646,7 @@ class ET_Builder_Element {
 
 				// Ensuring that all possible attributes exist to avoid remaining child attributes being used by global parents' attributes
 				// Do that only in case the module is fully global
-				if ( ! isset( $atts['saved_tabs'] ) || 'all' === $atts['saved_tabs'] ) {
+				if ( $is_module_fully_global ) {
 					$global_atts = wp_parse_args(
 						shortcode_parse_atts( $global_content_processed ),
 						array_map( '__return_empty_string', $this->whitelisted_fields )
@@ -591,9 +656,27 @@ class ET_Builder_Element {
 				}
 
 				foreach( $this->shortcode_atts as $single_attr => $value ) {
-					if ( isset( $global_atts[$single_attr] ) ) {
-						$this->shortcode_atts[$single_attr] = $global_atts[$single_attr];
+					if ( isset( $global_atts[$single_attr] ) && ! in_array( $single_attr, $unsynced_options ) ) {
+						// replace %22 with double quotes in options to make sure it's rendered correctly
+						if ( ! $is_global_template ) {
+							$this->shortcode_atts[$single_attr] = is_string( $global_atts[$single_attr] ) && ! in_array( $single_attr, $this->dbl_quote_exception_options ) ? str_replace( '%22', '"', $global_atts[$single_attr] ) : $global_atts[$single_attr];
+						}
+					} else if ( ! $use_updated_global_sync_method ) {
+						// prepare array of unsynced options to migrate the legacy modules to new system
+						$unsynced_legacy_options[] = $single_attr;
 					}
+				}
+
+				// migrate unsynced options to the new selective sync method
+				if ( ! $use_updated_global_sync_method ) {
+					$unsynced_global_attributes[0] = $unsynced_legacy_options;
+
+					// check the content and add it into list if needed.
+					if ( ! $content_synced ) {
+						$unsynced_global_attributes[0][] = 'et_pb_content_field';
+					}
+				} else {
+					$unsynced_global_attributes[0] = $unsynced_options;
 				}
 			} else {
 				// remove global_module attr if it doesn't exist in DB
@@ -763,6 +846,14 @@ class ET_Builder_Element {
 			'prepared_styles'   => ! $this->fb_support ? ET_Builder_Element::get_style() : '',
 		);
 
+		if ( ! empty( $unsynced_global_attributes ) ) {
+			$object['unsyncedGlobalSettings'] = $unsynced_global_attributes[0];
+		}
+
+		if ( $is_global_template ) {
+			$object['libraryModuleScope'] = 'global';
+		}
+
 		if ( ! $this->fb_support ) {
 			if ( !empty( $this->child_slug ) ) {
 				$object['raw_child_content'] = $raw_child_content;
@@ -891,8 +982,11 @@ class ET_Builder_Element {
 		}
 
 		$this->advanced_options['fonts'] = $advanced_font_options;
+		$font_options_count = 0;
 
 		foreach ( $advanced_font_options as $option_name => $option_settings ) {
+			$font_options_count++;
+
 			$option_settings = wp_parse_args( $option_settings, array(
 				'label'          => '',
 				'font_size'      => array(),
@@ -900,13 +994,32 @@ class ET_Builder_Element {
 				'font'           => array(),
 			) );
 
+			$toggle_disabled = isset( $option_settings['disable_toggle'] ) && $option_settings['disable_toggle'];
+			$tab_slug = isset( $option_settings['tab_slug'] ) ? $option_settings['tab_slug'] : 'advanced';
+			$toggle_slug = '';
+
+			if ( ! $toggle_disabled ) {
+				$toggle_slug = isset( $option_settings['toggle_slug'] ) ? $option_settings['toggle_slug'] : $option_name;
+
+				if ( ! isset( $option_settings['toggle_slug'] ) ) {
+					$font_toggle = array(
+						$option_name => array(
+							'title'    => sprintf( '%1$s %2$s', esc_html( $option_settings['label'] ), esc_html__( 'Text', 'et_builder' ) ),
+							'priority' => 50 + $font_options_count,
+						),
+					);
+
+					$this->_add_option_toggles( $tab_slug, $font_toggle );
+				}
+			}
+
 			if ( ! isset( $option_settings['hide_font'] ) || ! $option_settings['hide_font'] ) {
 				$additional_options["{$option_name}_font"] = wp_parse_args( $option_settings['font'], array(
 					'label'           => sprintf( esc_html__( '%1$s Font', 'et_builder' ), $option_settings['label'] ),
 					'type'            => 'font',
 					'option_category' => 'font_option',
-					'tab_slug'        => 'advanced',
-					'toggle_slug'     => '',
+					'tab_slug'        => $tab_slug,
+					'toggle_slug'     => $option_name,
 				) );
 
 				// add reference to the obsolete "all caps" option if needed
@@ -925,8 +1038,8 @@ class ET_Builder_Element {
 					'label'           => sprintf( esc_html__( '%1$s Font Size', 'et_builder' ), $option_settings['label'] ),
 					'type'            => 'range',
 					'option_category' => 'font_option',
-					'tab_slug'        => 'advanced',
-					'toggle_slug'     => '',
+					'tab_slug'        => $tab_slug,
+					'toggle_slug'     => $option_name,
 					'mobile_options'  => true,
 					'range_settings'  => array(
 						'min'  => '1',
@@ -941,16 +1054,19 @@ class ET_Builder_Element {
 				}
 
 				$additional_options["{$option_name}_font_size_tablet"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 				$additional_options["{$option_name}_font_size_phone"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 				$additional_options["{$option_name}_font_size_last_edited"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 			}
 
@@ -959,7 +1075,8 @@ class ET_Builder_Element {
 				'type'            => 'color-alpha',
 				'option_category' => 'font_option',
 				'custom_color'    => true,
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $option_name,
 			);
 
 			if ( ! isset( $option_settings['hide_text_color'] ) || ! $option_settings['hide_text_color'] ) {
@@ -968,7 +1085,8 @@ class ET_Builder_Element {
 					'type'            => 'color',
 					'option_category' => 'font_option',
 					'custom_color'    => true,
-					'tab_slug'        => 'advanced',
+					'tab_slug'        => $tab_slug,
+					'toggle_slug'     => $option_name,
 				);
 
 				// add reference to the obsolete color option if needed
@@ -993,7 +1111,8 @@ class ET_Builder_Element {
 					'type'            => 'range',
 					'mobile_options'  => true,
 					'option_category' => 'font_option',
-					'tab_slug'        => 'advanced',
+					'tab_slug'        => $tab_slug,
+					'toggle_slug'     => $option_name,
 					'default'         => '0px',
 					'range_settings'  => array(
 						'min'  => '0',
@@ -1008,16 +1127,19 @@ class ET_Builder_Element {
 				}
 
 				$additional_options["{$option_name}_letter_spacing_tablet"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 				$additional_options["{$option_name}_letter_spacing_phone"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 				$additional_options["{$option_name}_letter_spacing_last_edited"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 			}
 
@@ -1027,7 +1149,8 @@ class ET_Builder_Element {
 					'type'            => 'range',
 					'mobile_options'  => true,
 					'option_category' => 'font_option',
-					'tab_slug'        => 'advanced',
+					'tab_slug'        => $tab_slug,
+					'toggle_slug'     => $option_name,
 					'range_settings'  => array(
 						'min'  => '1',
 						'max'  => '3',
@@ -1050,16 +1173,19 @@ class ET_Builder_Element {
 				}
 
 				$additional_options["{$option_name}_line_height_tablet"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 				$additional_options["{$option_name}_line_height_phone"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 				$additional_options["{$option_name}_line_height_last_edited"] = array(
-					'type'     => 'skip',
-					'tab_slug' => 'advanced',
+					'type'        => 'skip',
+					'tab_slug'    => $tab_slug,
+					'toggle_slug' => $option_name,
 				);
 			}
 
@@ -1068,7 +1194,8 @@ class ET_Builder_Element {
 				$additional_options["{$option_name}_all_caps"] = array(
 					'type'              => 'hidden',
 					'shortcode_default' => '',
-					'tab_slug'          => 'advanced',
+					'tab_slug'          => $tab_slug,
+					'toggle_slug'       => $option_name,
 				);
 			}
 		}
@@ -1084,6 +1211,23 @@ class ET_Builder_Element {
 		$additional_options = array();
 
 		$color_type = isset( $this->advanced_options['background']['settings']['color'] ) && 'alpha' === $this->advanced_options['background']['settings']['color'] ? 'color-alpha' : 'color';
+		$toggle_disabled = isset( $this->advanced_options['background']['settings']['disable_toggle'] ) && $this->advanced_options['background']['settings']['disable_toggle'];
+		$tab_slug = isset( $this->advanced_options['background']['settings']['tab_slug'] ) ? $this->advanced_options['background']['settings']['tab_slug'] : 'general';
+		$toggle_slug = '';
+
+		if ( ! $toggle_disabled ) {
+			$toggle_slug = isset( $this->advanced_options['background']['settings']['tab_slug'] ) ? $this->advanced_options['background']['settings']['tab_slug'] : 'background';
+
+			$background_toggle = array(
+				'background' => array(
+					'title'    => esc_html__( 'Background', 'et_builder' ),
+					'priority' => 80,
+				),
+			);
+
+			$this->_add_option_toggles( $tab_slug, $background_toggle );
+		}
+
 		$defaults = array(
 			'use_background_color'  => true,
 			'use_background_image' => true,
@@ -1096,7 +1240,8 @@ class ET_Builder_Element {
 				'type'            => $color_type,
 				'option_category' => 'configuration',
 				'custom_color'    => true,
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $toggle_slug,
 			);
 		}
 
@@ -1108,7 +1253,8 @@ class ET_Builder_Element {
 				'upload_button_text' => esc_attr__( 'Upload an image', 'et_builder' ),
 				'choose_text'        => esc_attr__( 'Choose a Background Image', 'et_builder' ),
 				'update_text'        => esc_attr__( 'Set As Background', 'et_builder' ),
-				'tab_slug'           => 'advanced',
+				'tab_slug'           => $tab_slug,
+				'toggle_slug'        => $toggle_slug,
 			);
 		}
 
@@ -1121,8 +1267,23 @@ class ET_Builder_Element {
 		}
 
 		$additional_options = array();
-
+		$toggle_disabled = isset( $this->advanced_options['border']['settings']['disable_toggle'] ) && $this->advanced_options['border']['settings']['disable_toggle'];
 		$color_type = isset( $this->advanced_options['border']['settings']['color'] ) && 'alpha' === $this->advanced_options['border']['settings']['color'] ? 'color-alpha' : 'color';
+		$tab_slug = isset( $this->advanced_options['border']['settings']['tab_slug'] ) ? $this->advanced_options['border']['settings']['tab_slug'] : 'advanced';
+		$toggle_slug = '';
+
+		if ( ! $toggle_disabled ) {
+			$toggle_slug = isset( $this->advanced_options['border']['settings']['toggle_slug'] ) ? $this->advanced_options['border']['settings']['toggle_slug'] : 'border';
+
+			$border_toggle = array(
+				'border' => array(
+					'title'    => esc_html__( 'Border', 'et_builder' ),
+					'priority' => 60,
+				),
+			);
+
+			$this->_add_option_toggles( $tab_slug, $border_toggle );
+		}
 
 		$additional_options['use_border_color'] = array(
 			'label'             => esc_html__( 'Use Border', 'et_builder' ),
@@ -1139,7 +1300,8 @@ class ET_Builder_Element {
 				'border_style',
 			),
 			'shortcode_default' => 'off',
-			'tab_slug'          => 'advanced',
+			'tab_slug'          => $tab_slug,
+			'toggle_slug'       => $toggle_slug,
 		);
 
 		$additional_options['border_color'] = array(
@@ -1148,7 +1310,8 @@ class ET_Builder_Element {
 			'option_category'   => 'layout',
 			'default'           => '#ffffff',
 			'shortcode_default' => '#ffffff',
-			'tab_slug'	       	=> 'advanced',
+			'tab_slug'          => $tab_slug,
+			'toggle_slug'       => $toggle_slug,
 			'depends_default'   => true,
 		);
 
@@ -1158,7 +1321,8 @@ class ET_Builder_Element {
 			'option_category'   => 'layout',
 			'default'           => '1px',
 			'shortcode_default' => '1px',
-			'tab_slug'          => 'advanced',
+			'tab_slug'          => $tab_slug,
+			'toggle_slug'       => $toggle_slug,
 			'depends_default'   => true,
 		);
 
@@ -1168,7 +1332,8 @@ class ET_Builder_Element {
 			'option_category'   => 'layout',
 			'options'           => et_builder_get_border_styles(),
 			'shortcode_default' => 'solid',
-			'tab_slug'          => 'advanced',
+			'tab_slug'          => $tab_slug,
+			'toggle_slug'       => $toggle_slug,
 			'depends_default'   => true,
 		);
 
@@ -1188,21 +1353,40 @@ class ET_Builder_Element {
 		);
 		$this->advanced_options['custom_margin_padding'] = wp_parse_args( $this->advanced_options['custom_margin_padding'], $defaults );
 
+		$tab_slug = isset( $this->advanced_options['custom_margin_padding']['tab_slug'] ) ? $this->advanced_options['custom_margin_padding']['tab_slug'] : 'advanced';
+		$toggle_disabled = isset( $this->advanced_options['custom_margin_padding']['disable_toggle'] ) && $this->advanced_options['custom_margin_padding']['disable_toggle'];
+		$toggle_slug = '';
+
+		if ( ! $toggle_disabled ) {
+			$toggle_slug = isset( $this->advanced_options['custom_margin_padding']['toggle_slug'] ) ? $this->advanced_options['custom_margin_padding']['toggle_slug'] : 'margin';
+
+			$margin_toggle = array(
+				'margin' => array(
+					'title'    => esc_html__( 'Spacing', 'et_builder' ),
+					'priority' => 70,
+				),
+			);
+
+			$this->_add_option_toggles( $tab_slug, $margin_toggle );
+		}
+
 		if ( $this->advanced_options['custom_margin_padding']['use_margin'] ) {
 			$additional_options['custom_margin'] = array(
 				'label'           => esc_html__( 'Custom Margin', 'et_builder' ),
 				'type'            => 'custom_margin',
 				'mobile_options'  => true,
 				'option_category' => 'layout',
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $toggle_slug,
 			);
 			$additional_options['custom_margin_tablet'] = array(
 				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'tab_slug' => $tab_slug,
 			);
 			$additional_options['custom_margin_phone'] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			// make it possible to override/add options
@@ -1211,28 +1395,33 @@ class ET_Builder_Element {
 			}
 
 			$additional_options["custom_margin_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			$additional_options["padding_1_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			$additional_options["padding_2_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			$additional_options["padding_3_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			$additional_options["padding_4_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 		}
 
@@ -1242,15 +1431,18 @@ class ET_Builder_Element {
 				'type'            => 'custom_padding',
 				'mobile_options'  => true,
 				'option_category' => 'layout',
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $toggle_slug,
 			);
 			$additional_options['custom_padding_tablet'] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options['custom_padding_phone'] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			// make it possible to override/add options
@@ -1259,8 +1451,9 @@ class ET_Builder_Element {
 			}
 
 			$additional_options["custom_padding_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 		}
 
@@ -1275,6 +1468,23 @@ class ET_Builder_Element {
 		$additional_options = array();
 
 		foreach ( $this->advanced_options['button'] as $option_name => $option_settings ) {
+			$tab_slug = isset( $option_settings['tab_slug'] ) ? $option_settings['tab_slug'] : 'advanced';
+			$toggle_disabled = isset( $option_settings['disable_toggle'] ) && $option_settings['disable_toggle'];
+			$toggle_slug = '';
+
+			if ( ! $toggle_disabled ) {
+				$toggle_slug = isset( $option_settings['toggle_slug'] ) ? $option_settings['toggle_slug'] : $option_name;
+
+				$button_toggle = array(
+					$option_name => array(
+						'title'    => esc_html( $option_settings['label'] ),
+						'priority' => 80,
+					),
+				);
+
+				$this->_add_option_toggles( $tab_slug, $button_toggle );
+			}
+
 			$additional_options["custom_{$option_name}"] = array(
 				'label'             => sprintf( esc_html__( 'Use Custom Styles for %1$s ', 'et_builder' ), $option_settings['label'] ),
 				'type'              => 'yes_no_button',
@@ -1301,7 +1511,8 @@ class ET_Builder_Element {
 					"{$option_name}_letter_spacing_hover",
 				),
 				'shortcode_default' => 'off',
-				'tab_slug'          => 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 			);
 
 			$additional_options["{$option_name}_text_size"] = array(
@@ -1314,7 +1525,8 @@ class ET_Builder_Element {
 				),
 				'option_category' => 'button',
 				'default'         => ET_Global_Settings::get_value( 'all_buttons_font_size' ),
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $toggle_slug,
 				'mobile_options'  => true,
 				'depends_default' => true,
 			);
@@ -1326,7 +1538,8 @@ class ET_Builder_Element {
 				'custom_color'      => true,
 				'default'           => '',
 				'shortcode_default' => '',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1337,7 +1550,8 @@ class ET_Builder_Element {
 				'custom_color'      => true,
 				'default'           => ET_Global_Settings::get_value( 'all_buttons_bg_color' ),
 				'shortcode_default' => '',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1347,7 +1561,8 @@ class ET_Builder_Element {
 				'option_category'   => 'button',
 				'default'           => ET_Global_Settings::get_value( 'all_buttons_border_width' ),
 				'shortcode_default' => '',
-				'tab_slug'          => 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1358,7 +1573,8 @@ class ET_Builder_Element {
 				'custom_color'      => true,
 				'default'           => '',
 				'shortcode_default' => '',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1368,7 +1584,8 @@ class ET_Builder_Element {
 				'option_category'   => 'button',
 				'default'           => ET_Global_Settings::get_value( 'all_buttons_border_radius' ),
 				'shortcode_default' => '',
-				'tab_slug'          => 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1378,7 +1595,8 @@ class ET_Builder_Element {
 				'option_category'   => 'button',
 				'default'           => ET_Global_Settings::get_value( 'all_buttons_spacing' ),
 				'shortcode_default' => '',
-				'tab_slug'          => 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'mobile_options'    => true,
 				'depends_default'   => true,
 			);
@@ -1387,7 +1605,8 @@ class ET_Builder_Element {
 				'label'           => sprintf( esc_html__( '%1$s Font', 'et_builder' ), $option_settings['label'] ),
 				'type'            => 'font',
 				'option_category' => 'button',
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $toggle_slug,
 				'depends_default' => true,
 			);
 
@@ -1408,7 +1627,8 @@ class ET_Builder_Element {
 					"{$option_name}_icon",
 				),
 				'shortcode_default' => 'default',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1420,7 +1640,8 @@ class ET_Builder_Element {
 				'renderer'            => 'et_pb_get_font_icon_list',
 				'renderer_with_field' => true,
 				'default'             => '',
-				'tab_slug'            => 'advanced',
+				'tab_slug'            => $tab_slug,
+				'toggle_slug'         => $toggle_slug,
 				'depends_show_if_not' => 'off',
 			);
 
@@ -1431,7 +1652,8 @@ class ET_Builder_Element {
 				'custom_color'        => true,
 				'default'             => '',
 				'shortcode_default'   => '',
-				'tab_slug'	       	  => 'advanced',
+				'tab_slug'            => $tab_slug,
+				'toggle_slug'         => $toggle_slug,
 				'depends_show_if_not' => 'off',
 			);
 
@@ -1444,7 +1666,8 @@ class ET_Builder_Element {
 					'left'    => esc_html__( 'Left', 'et_builder' ),
 				),
 				'shortcode_default'   => 'right',
-				'tab_slug'	       	  => 'advanced',
+				'tab_slug'            => $tab_slug,
+				'toggle_slug'         => $toggle_slug,
 				'depends_show_if_not' => 'off',
 			);
 
@@ -1458,7 +1681,8 @@ class ET_Builder_Element {
 					'off'     => esc_html__( 'No', 'et_builder' ),
 				),
 				'shortcode_default'   => 'on',
-				'tab_slug'	       	  => 'advanced',
+				'tab_slug'            => $tab_slug,
+				'toggle_slug'         => $toggle_slug,
 				'depends_show_if_not' => 'off',
 			);
 
@@ -1469,7 +1693,8 @@ class ET_Builder_Element {
 				'custom_color'      => true,
 				'default'           => '',
 				'shortcode_default' => '',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1480,7 +1705,8 @@ class ET_Builder_Element {
 				'custom_color'      => true,
 				'default'           => '',
 				'shortcode_default' => '',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1491,7 +1717,8 @@ class ET_Builder_Element {
 				'custom_color'      => true,
 				'default'           => '',
 				'shortcode_default' => '',
-				'tab_slug'	       	=> 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1501,7 +1728,8 @@ class ET_Builder_Element {
 				'option_category'   => 'button',
 				'default'           => ET_Global_Settings::get_value( 'all_buttons_border_radius_hover' ),
 				'shortcode_default' => '',
-				'tab_slug'          => 'advanced',
+				'tab_slug'          => $tab_slug,
+				'toggle_slug'       => $toggle_slug,
 				'depends_default'   => true,
 			);
 
@@ -1510,47 +1738,57 @@ class ET_Builder_Element {
 				'type'            => 'range',
 				'option_category' => 'button',
 				'default'         => ET_Global_Settings::get_value( 'all_buttons_spacing_hover' ),
-				'tab_slug'        => 'advanced',
+				'tab_slug'        => $tab_slug,
+				'toggle_slug'     => $toggle_slug,
 				'mobile_options'  => true,
 				'depends_default' => true,
 			);
 
 			$additional_options["{$option_name}_text_size_tablet"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_text_size_phone"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_letter_spacing_tablet"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_letter_spacing_phone"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_letter_spacing_hover_tablet"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_letter_spacing_hover_phone"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 
 			$additional_options["{$option_name}_text_size_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_letter_spacing_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 			$additional_options["{$option_name}_letter_spacing_hover_last_edited"] = array(
-				'type'     => 'skip',
-				'tab_slug' => 'advanced',
+				'type'        => 'skip',
+				'tab_slug'    => $tab_slug,
+				'toggle_slug' => $toggle_slug,
 			);
 		}
 
@@ -1606,10 +1844,14 @@ class ET_Builder_Element {
 					! isset( $option['no_space_before_selector'] ) && isset( $option['selector'] ) ? ' ' : '',
 					$selector_output
 				),
-				'type'     => 'custom_css',
-				'tab_slug' => 'custom_css',
+				'type'        => 'custom_css',
+				'tab_slug'    => 'custom_css',
+				'toggle_slug' => 'custom_css',
 				'no_colon' => true,
 			);
+
+			// update toggle slug for $this->custom_css_options
+			$this->custom_css_options[ $slug ]['toggle_slug'] = 'custom_css';
 
 			// add optional settings if needed
 			foreach ( $additional_option_slugs as $option_slug ) {
@@ -1622,6 +1864,28 @@ class ET_Builder_Element {
 		if ( ! empty( $custom_css_fields ) ) {
 			$this->fields_unprocessed = array_merge( $this->fields_unprocessed, $custom_css_fields );
 		}
+
+		$default_custom_css_toggles = array(
+			'classes'    => esc_html__( 'CSS ID &amp; Classes', 'et_builder' ),
+			'custom_css' => esc_html__( 'Custom CSS', 'et_builder' ),
+		);
+
+		$this->_add_option_toggles( 'custom_css', $default_custom_css_toggles );
+	}
+
+	private function _add_option_toggles( $tab_slug, $toggles_array ) {
+		if ( ! isset( $this->options_toggles[ $tab_slug ] ) ) {
+			$this->options_toggles[ $tab_slug ] = array();
+		}
+
+		if ( ! isset( $this->options_toggles[ $tab_slug ]['toggles'] ) ) {
+			$this->options_toggles[ $tab_slug ]['toggles'] = array();
+		}
+
+		// get the only toggles which do not exist.
+		$processed_toggles = array_diff_key( $toggles_array, $this->options_toggles[ $tab_slug ]['toggles'] );
+
+		$this->options_toggles[ $tab_slug ]['toggles'] = array_merge( $this->options_toggles[ $tab_slug ]['toggles'], $processed_toggles );
 	}
 
 	private function _get_fields() {
@@ -1730,7 +1994,7 @@ class ET_Builder_Element {
 		}
 
 		$output = sprintf(
-			'%6$s<div class="et-pb-option et-pb-option--%10$s%1$s%2$s%3$s%8$s%9$s"%4$s tabindex="-1">%5$s</div> <!-- .et-pb-option -->%7$s',
+			'%6$s<div class="et-pb-option et-pb-option--%10$s%1$s%2$s%3$s%8$s%9$s%12$s"%4$s tabindex="-1" data-option_name="%11$s">%5$s</div> <!-- .et-pb-option -->%7$s',
 			( ! empty( $field['type'] ) && 'tiny_mce' == $field['type'] ? ' et-pb-option-main-content' : '' ),
 			( ( $depends || isset( $field['depends_default'] ) ) ? ' et-pb-depends' : '' ),
 			( ! empty( $field['type'] ) && 'hidden' == $field['type'] ? ' et_pb_hidden' : '' ),
@@ -1740,7 +2004,9 @@ class ET_Builder_Element {
 			"\n\n\t\t",
 			( ! empty( $field['type'] ) && 'hidden' == $field['type'] ? esc_attr( sprintf( ' et-pb-option-%1$s', $field['name'] ) ) : '' ),
 			( ! empty( $field['option_class'] ) ? ' ' . $field['option_class'] : '' ),
-			isset( $field['type'] ) ? esc_attr( $field['type'] ) : ''
+			isset( $field['type'] ) ? esc_attr( $field['type'] ) : '',
+			esc_attr( $field['name'] ),
+			isset( $field['specialty_only'] ) && 'yes' === $field['specialty_only'] ? ' et-pb-specialty-only-option' : ''
 		);
 
 		return $output;
@@ -1820,18 +2086,30 @@ class ET_Builder_Element {
 		return sprintf( 'et_pb_%s', $field['name'] );
 	}
 
+	function process_html_attributes( $field, &$attributes ) {
+		if ( is_array( $field['attributes'] )  ) {
+			foreach( $field['attributes'] as $attribute_key => $attribute_value ) {
+				$attributes .= ' ' . esc_attr( $attribute_key ) . '="' . esc_attr( $attribute_value ) . '"';
+			}
+		} else {
+			$attributes = ' '.$field['attributes'];
+		}
+	}
+
 	function render_field( $field ) {
 		$classes = array();
 		$hidden_field = '';
+		$field_el = '';
 		$is_custom_color = isset( $field['custom_color'] ) && $field['custom_color'];
 		$reset_button_html = '<span class="et-pb-reset-setting"></span>';
 		$need_mobile_options = isset( $field['mobile_options'] ) && $field['mobile_options'] ? true : false;
+		$only_options = isset( $field['only_options'] ) ? $field['only_options'] : false;
 
 		if ( $need_mobile_options ) {
 			$mobile_settings_tabs = et_pb_generate_mobile_options_tabs();
 		}
 
-		if ( 'select' !== $field['type'] ) {
+		if ( 0 !== strpos( $field['type'], 'select' ) ) {
 			$classes = array( 'regular-text' );
 		}
 
@@ -1871,23 +2149,19 @@ class ET_Builder_Element {
 			$default = '' === $default ? '||||' : $default;
 		}
 
+		$field_value = esc_attr( $field_name ) . '.replace("%91", "[").replace("%93", "]")';
+
 		$value_html = ' value="<%%- typeof( %1$s ) !== \'undefined\' ?  %2$s : \'%3$s\' %%>" ';
 		$value = sprintf(
 			$value_html,
 			esc_attr( $field_name ),
-			esc_attr( $field_name ),
+			$field_value,
 			$default
 		);
 
 		$attributes = '';
 		if ( ! empty( $field['attributes'] ) ) {
-			if ( is_array( $field['attributes'] )  ) {
-				foreach( $field['attributes'] as $attribute_key => $attribute_value ) {
-					$attributes .= ' ' . esc_attr( $attribute_key ) . '="' . esc_attr( $attribute_value ) . '"';
-				}
-			} else {
-				$attributes = ' '.$field['attributes'];
-			}
+			$this->process_html_attributes( $field, $attributes );
 		}
 
 		if ( ! empty( $field['affects'] ) ) {
@@ -1899,7 +2173,7 @@ class ET_Builder_Element {
 			$field['class'] .= ' et-pb-font-select';
 		}
 
-		if ( in_array( $field['type'], array( 'font', 'hidden', 'multiple_checkboxes' ) ) ) {
+		if ( in_array( $field['type'], array( 'font', 'hidden', 'multiple_checkboxes', 'select_with_option_groups' ) ) && ! $only_options ) {
 			$hidden_field = sprintf(
 				'<input type="hidden" name="%1$s" id="%2$s" class="et-pb-main-setting %3$s" data-default="%4$s" %5$s %6$s/>',
 				esc_attr( $field['name'] ),
@@ -1909,6 +2183,13 @@ class ET_Builder_Element {
 				$value,
 				$attributes
 			);
+
+			if ( 'select_with_option_groups' === $field['type'] ) {
+				// Since we are using a hidden field to manage the value, we need to clear the data-affects attribute so that
+				// it doesn't appear on both the `$field` AND the hidden field. This should probably be done for all of these
+				// field types but don't want to risk breaking anything :-/
+				$attributes = preg_replace( '/data-affects="[\w\s-,]*"/', 'data-affects=""', $attributes );
+			}
 		}
 
 		foreach ( $this->get_validation_attr_rules() as $rule ) {
@@ -1918,9 +2199,13 @@ class ET_Builder_Element {
 			}
 		}
 
+		if ( isset( $field['before'] ) && ! $only_options ) {
+			$field_el .= $this->render_field_before_after_element( $field['before'] );
+		}
+
 		switch( $field['type'] ) {
 			case 'warning':
-				$field_el = sprintf(
+				$field_el .= sprintf(
 					'<div class="et-pb-option-warning" data-name="%2$s" data-display_if="%3$s">%1$s</div>',
 					html_entity_decode( esc_html( $field['message'] ) ),
 					esc_attr( $field['name'] ),
@@ -1938,7 +2223,7 @@ class ET_Builder_Element {
 					$main_content_property_name = "data.{$main_content_property_name}";
 				}
 
-				$field_el = sprintf(
+				$field_el .= sprintf(
 					'<div id="%1$s"><%%= typeof( %2$s ) !== \'undefined\' ? %2$s : \'\' %%></div>',
 					esc_attr( $main_content_field_name ),
 					esc_html( $main_content_property_name )
@@ -1950,13 +2235,14 @@ class ET_Builder_Element {
 				$field_custom_value = esc_html( $field_name );
 				if ( 'custom_css' === $field['type'] ) {
 					$field_custom_value .= '.replace( /\|\|/g, "\n" ).replace( /%22/g, "&quot;" ).replace( /%92/g, "\\\" )';
+					$field_custom_value .= '.replace( /%91/g, "&#91;" ).replace( /%93/g, "&#93;" )';
 				}
 
 				if ( 'et_pb_raw_content' === $field_name ) {
 					$field_custom_value = sprintf( '_.unescape( %1$s )', $field_custom_value );
 				}
 
-				$field_el = sprintf(
+				$field_el .= sprintf(
 					'<textarea class="et-pb-main-setting large-text code%1$s" rows="4" cols="50" id="%2$s"><%%= typeof( %3$s ) !== \'undefined\' ? %4$s : \'\' %%></textarea>',
 					esc_attr( $field['class'] ),
 					esc_attr( $field['id'] ),
@@ -1967,6 +2253,7 @@ class ET_Builder_Element {
 			case 'select':
 			case 'yes_no_button':
 			case 'font':
+			case 'select_with_option_groups':
 				if ( 'font' === $field['type'] ) {
 					$field['id']    .= '_select';
 					$field_name     .= '_select';
@@ -1980,7 +2267,13 @@ class ET_Builder_Element {
 					$button_options = isset( $field['button_options'] ) ? $field['button_options'] : array();
 				}
 
-				$field_el = $this->render_select( $field_name, $field['options'], $field['id'], $field['class'], $attributes, $field['type'], $button_options, $default );
+				$select = $this->render_select( $field_name, $field['options'], $field['id'], $field['class'], $attributes, $field['type'], $button_options, $default, $only_options );
+
+				if ( $only_options ) {
+					$field_el = $select;
+				} else {
+					$field_el .= $select;
+				}
 
 				if ( 'font' === $field['type'] ) {
 					$font_style_button_html = sprintf(
@@ -1997,6 +2290,11 @@ class ET_Builder_Element {
 
 					$field_el .= $hidden_field;
 				}
+
+				if ( 'select_with_option_groups' === $field['type'] ) {
+					$field_el .= $hidden_field;
+				}
+
 				break;
 			case 'color':
 			case 'color-alpha':
@@ -2049,11 +2347,10 @@ class ET_Builder_Element {
 				$field['upload_button_text'] = ! empty( $field['upload_button_text'] ) ? $field['upload_button_text'] : esc_attr__( 'Upload', 'et_builder' );
 				$field['choose_text'] = ! empty( $field['choose_text'] ) ? $field['choose_text'] : esc_attr__( 'Choose image', 'et_builder' );
 				$field['update_text'] = ! empty( $field['update_text'] ) ? $field['update_text'] : esc_attr__( 'Set image', 'et_builder' );
-				$field['classes'] = ! empty( $field['classes'] ) ? ' ' . $field['classes'] : '';
+				$field['class'] = ! empty( $field['class'] ) ? ' ' . $field['class'] : '';
 				$field_additional_button = ! empty( $field['additional_button'] ) ? "\n\t\t\t\t\t" . $field['additional_button'] : '';
-
-				$field_el = sprintf(
-					'<input id="%1$s" type="text" class="et-pb-main-setting regular-text et-pb-upload-field%8$s" value="<%%- typeof( %2$s ) !== \'undefined\' ? %2$s : \'\' %%>" />
+				$field_el .= sprintf(
+					'<input id="%1$s" type="text" class="et-pb-main-setting regular-text et-pb-upload-field%8$s" value="<%%- typeof( %2$s ) !== \'undefined\' ? %2$s : \'\' %%>" %9$s />
 					<input type="button" class="button button-upload et-pb-upload-button" value="%3$s" data-choose="%4$s" data-update="%5$s" data-type="%6$s" />%7$s',
 					esc_attr( $field['id'] ),
 					esc_attr( $field_name ),
@@ -2062,11 +2359,12 @@ class ET_Builder_Element {
 					esc_attr( $field['update_text'] ),
 					esc_attr( $field_data_type ),
 					$field_additional_button,
-					esc_attr( $field['classes'] )
+					esc_attr( $field['class'] ),
+					$attributes
 				);
 				break;
 			case 'checkbox':
-				$field_el = sprintf(
+				$field_el .= sprintf(
 					'<input type="checkbox" name="%1$s" id="%2$s" class="et-pb-main-setting" value="on" <%%- typeof( %1$s ) !==  \'undefined\' && %1$s == \'on\' ? checked="checked" : "" %%>>',
 					esc_attr( $field['name'] ),
 					esc_attr( $field['id'] )
@@ -2101,10 +2399,10 @@ class ET_Builder_Element {
 					);
 				}
 
-				$field_el = $checkboxes_set . $hidden_field . '</div>';
+				$field_el .= $checkboxes_set . $hidden_field . '</div>';
 				break;
 			case 'hidden':
-				$field_el = $hidden_field;
+				$field_el .= $hidden_field;
 				break;
 			case 'custom_margin':
 			case 'custom_padding':
@@ -2155,7 +2453,7 @@ class ET_Builder_Element {
 					'class' => esc_attr( $custom_margin_class ),
 				);
 
-				$field_el = sprintf(
+				$field_el .= sprintf(
 					'<div class="et_custom_margin_padding">
 						%6$s
 						%7$s
@@ -2232,7 +2530,7 @@ class ET_Builder_Element {
 
 				$type = in_array( $field['type'], array( 'text', 'number' ) ) ? $field['type'] : 'text';
 
-				$field_el = sprintf(
+				$field_el .= sprintf(
 					'<input id="%1$s" type="%11$s" class="%2$s%5$s%9$s"%6$s%3$s%8$s%10$s %4$s/>%7$s',
 					esc_attr( $field['id'] ),
 					esc_attr( $field['class'] ),
@@ -2370,39 +2668,88 @@ class ET_Builder_Element {
 			$field_el .= $reset_button_html;
 		}
 
+		if ( isset( $field['after'] ) && ! $only_options ) {
+			$field_el .= $this->render_field_before_after_element( $field['after'] );
+		}
+
 		return "\t" . $field_el;
 	}
 
-	function render_select( $name, $options, $id = '', $class = '', $attributes = '', $field_type = '', $button_options = array(), $default = '' ) {
+	public function render_field_before_after_element( $elements ) {
+		$field_el = '';
+		$elements = is_array( $elements ) ? $elements : array( $elements );
+
+		foreach ( $elements as $element ) {
+			$attributes = '';
+
+			if ( ! empty( $element['attributes'] ) ) {
+				$this->process_html_attributes( $element, $attributes );
+			}
+
+			switch ( $element['type'] ) {
+				case 'button':
+					$class     = isset( $element['class'] ) ? esc_attr( $element['class'] ) : '';
+					$text      = isset( $element['text'] ) ? et_esc_previously( $element['text'] ) : '';
+					$field_el .= sprintf( '<button class="button %1$s"%2$s>%3$s</button>', $class, $attributes, $text );
+
+					break;
+			}
+		}
+
+		return $field_el;
+	}
+
+	public function render_select_options( $select_name, $options, $default ) {
+		$options_output = '';
+
+		foreach ( (array) $options as $option_value => $option_label ) {
+			$data = '';
+			if ( is_array( $option_label ) ) {
+				if ( isset( $option_label['data'] ) ) {
+					$data_key_name = key( $option_label['data'] );
+					$data = sprintf(
+						' data-%1$s="%2$s"',
+						esc_attr( $data_key_name ),
+						esc_attr( $option_label['data'][ $data_key_name ] )
+					);
+				}
+				$option_label = $option_label['value'];
+			}
+			$selected_attr = '<%- ( typeof( ' . esc_attr( $select_name ) . ' ) !== \'undefined\' && \'' . esc_attr( $option_value ) . '\' === ' . esc_attr( $select_name ) . ' ) || ( typeof( ' . esc_attr( $select_name ) . ' ) === \'undefined\' && \'' . $default . '\' !== \'\' && \'' . esc_attr( $option_value ) . '\' === \'' . $default .'\' ) ?  \' selected="selected"\' : \'\' %>';
+			$options_output .= sprintf(
+				'%4$s<option%5$s value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $option_value ),
+				$selected_attr,
+				esc_html( $option_label ),
+				"\n\t\t\t\t\t\t",
+				( '' !== $data ? $data : '' )
+			);
+		}
+
+		return $options_output;
+	}
+
+	function render_select( $name, $options, $id = '', $class = '', $attributes = '', $field_type = '', $button_options = array(), $default = '', $only_options = false ) {
 		$options_output = '';
 
 		if ( 'font' === $field_type ) {
 			$options_output = '<%= window.et_builder.fonts_template() %>';
-		} else {
-			foreach ( $options as $option_value => $option_label ) {
-				$data = '';
-				if ( is_array( $option_label ) ) {
-					if ( isset( $option_label['data'] ) ) {
-						$data_key_name = key( $option_label['data'] );
-						$data = sprintf(
-							' data-%1$s="%2$s"',
-							esc_html( $data_key_name ),
-							esc_attr( $option_label['data'][ $data_key_name ] )
-						);
-					}
-					$option_label = $option_label['value'];
-				}
-				$selected_attr = '<%- ( typeof( ' . esc_attr( $name ) . ' ) !== \'undefined\' && \'' . esc_attr( $option_value ) . '\' === ' . esc_attr( $name ) . ' ) || ( typeof( ' . esc_attr( $name ) . ' ) === \'undefined\' && \'' . $default . '\' !== \'\' && \'' . esc_attr( $option_value ) . '\' === \'' . $default .'\' ) ?  \' selected="selected"\' : \'\' %>';
-				$options_output .= sprintf(
-					'%4$s<option%5$s value="%1$s"%2$s>%3$s</option>',
-					esc_attr( $option_value ),
-					$selected_attr,
-					esc_html( $option_label ),
-					"\n\t\t\t\t\t\t",
-					( '' !== $data ? $data : '' )
-				);
+
+		} else if ( 'select_with_option_groups' === $field_type ) {
+			foreach ( $options as $option_group_name => $option_group ) {
+				$option_group_name = esc_attr( $option_group_name );
+				$options_output   .= '0' !== $option_group_name ? "<optgroup label='{$option_group_name}'>" : '';
+				$options_output   .= $this->render_select_options( $name, $option_group, $default );
+				$options_output   .= '0' !== $option_group_name ? '</optgroup>' : '';
 			}
-			$class = rtrim( 'et-pb-main-setting ' . $class );
+
+			$class = rtrim( $class );
+
+			$name = $id = '';
+
+		} else {
+			$options_output .= $this->render_select_options( $name, $options, $default );
+			$class           = rtrim( 'et-pb-main-setting ' . $class );
 		}
 
 		$output = sprintf(
@@ -2429,14 +2776,14 @@ class ET_Builder_Element {
 			'yes_no_button' === $field_type ? '</div>' : '',
 			( 'et_pb_transparent_background' === $name ? '<%- typeof( ' . esc_html( $name ) . ' ) === \'undefined\' ?  \' data-default=default\' : \'\' %>' : '' )
 		);
-		return $output;
+		return $only_options ? $options_output : $output;
 	}
 
 	function get_main_tabs() {
 		$tabs = array(
-			'general'    => esc_html__( 'General Settings', 'et_builder' ),
-			'advanced'   => esc_html__( 'Advanced Design Settings', 'et_builder' ),
-			'custom_css' => esc_html__( 'Custom CSS', 'et_builder' ),
+			'general'    => esc_html__( 'Content', 'et_builder' ),
+			'advanced'   => esc_html__( 'Design', 'et_builder' ),
+			'custom_css' => esc_html__( 'Advanced', 'et_builder' ),
 		);
 
 		return apply_filters( 'et_builder_main_tabs', $tabs );
@@ -2527,8 +2874,8 @@ class ET_Builder_Element {
 			$tab_slug = ! empty( $field['tab_slug'] ) ? $field['tab_slug'] : 'general';
 			$is_toggle_option = isset( $field['toggle_slug'] ) && $toggles_used && isset( $this->options_toggles[ $tab_slug ] );
 			$toggle_slug = $is_toggle_option ? $field['toggle_slug'] : $toggle_all_options_slug;
-			$tabs_output[ $tab_slug ][ $toggle_slug ][] = $this->wrap_settings_option( $option_output, $field );
-
+			$sub_toggle_slug = 'all_options' !== $toggle_slug && isset( $field['sub_toggle'] ) && '' !== $field['sub_toggle'] ? $field['sub_toggle'] : 'main';
+			$tabs_output[ $tab_slug ][ $toggle_slug ][ $sub_toggle_slug ][] = $this->wrap_settings_option( $option_output, $field );
 		}
 
 		// make sure that custom_css tab is the last item in array
@@ -2545,13 +2892,51 @@ class ET_Builder_Element {
 
 			if ( isset( $tabs_output[ $tab_slug ] ) ) {
 				if ( isset( $this->options_toggles[ $tab_slug ] ) ) {
-					foreach ( $this->options_toggles[ $tab_slug ]['toggles'] as $toggle_slug => $toggle_heading ) {
+					$this->options_toggles[ $tab_slug ]['toggles'] = self::et_pb_order_toggles_by_priority( $this->options_toggles[ $tab_slug ]['toggles'] );
+
+					foreach ( $this->options_toggles[ $tab_slug ]['toggles'] as $toggle_slug => $toggle_data ) {
+						$toggle_heading = is_array( $toggle_data ) ? $toggle_data['title'] : $toggle_data;
+						if ( ! isset( $tabs_output[ $tab_slug ][ $toggle_slug ] ) ) {
+							continue;
+						}
+
 						$i++;
 						$toggle_output = '';
-						$is_accordion_disabled = isset( $this->options_toggles[ $tab_slug ]['settings']['toggles_disabled'] ) && $this->options_toggles[ $tab_slug ]['settings']['toggles_disabled'] ? true : false;
+						$is_accordion_enabled = isset( $this->options_toggles[ $tab_slug ]['settings']['bb_toggles_enabeld'] ) && $this->options_toggles[ $tab_slug ]['settings']['bb_toggles_enabled'] ? true : false;
 
-						foreach ( $tabs_output[ $tab_slug ][ $toggle_slug ] as $toggle_option_output ) {
-							$toggle_output .= $toggle_option_output;
+						if ( is_array( $toggle_data ) && ! empty( $toggle_data ) ) {
+							if ( ! isset( $toggle_data['sub_toggles'] ) ) {
+								$toggle_data['sub_toggles'] = array( 'main' => '' );
+							}
+
+							foreach( $toggle_data['sub_toggles'] as $sub_toggle_id => $sub_toggle_name ) {
+								if ( ! isset( $tabs_output[ $tab_slug ][ $toggle_slug ][ $sub_toggle_id ] ) ) {
+									continue;
+								}
+
+								foreach ( $tabs_output[ $tab_slug ][ $toggle_slug ][ $sub_toggle_id ] as $toggle_option_output ) {
+									if ( 'main' === $sub_toggle_id ) {
+										$toggle_output .= $toggle_option_output;
+									} else {
+										$toggle_output .= sprintf(
+											'<div class="et_pb_subtoggle_section">
+												%1$s
+											</div>',
+											$toggle_option_output
+										);
+									}
+								}
+							}
+						} else {
+							foreach ( $tabs_output[ $tab_slug ][ $toggle_slug ] as $toggle_option_id => $toggle_option_data ) {
+								foreach( $toggle_option_data as $toggle_option_output ) {
+									$toggle_output .= $toggle_option_output;
+								}
+							}
+						}
+
+						if ( '' === $toggle_output ) {
+							continue;
 						}
 
 						$toggle_output = sprintf(
@@ -2563,8 +2948,8 @@ class ET_Builder_Element {
 							</div> <!-- .et-pb-options-toggle-container -->',
 							esc_html( $toggle_heading ),
 							$toggle_output,
-							( $is_accordion_disabled ? ' et-pb-options-toggle-disabled' : ' et-pb-options-toggle-enabled' ),
-							( 1 === $i && ! $is_accordion_disabled ? ' et-pb-option-toggle-content-open' : '' )
+							( $is_accordion_enabled ? ' et-pb-options-toggle-enabled' : ' et-pb-options-toggle-disabled' ),
+							( 1 === $i && $is_accordion_enabled ? ' et-pb-option-toggle-content-open' : '' )
 						);
 
 						$tab_output .= $toggle_output;
@@ -2572,8 +2957,10 @@ class ET_Builder_Element {
 				}
 
 				if ( isset( $tabs_output[ $tab_slug ][ $toggle_all_options_slug ] ) ) {
-					foreach ( $tabs_output[ $tab_slug ][ $toggle_all_options_slug ] as $no_toggle_option_output ) {
-						$tab_output .= $no_toggle_option_output;
+					foreach ( $tabs_output[ $tab_slug ][ $toggle_all_options_slug ] as $no_toggle_option_data ) {
+						foreach( $no_toggle_option_data as $subtoggle_id => $no_toggle_option_output ) {
+							$tab_output .= $no_toggle_option_output;
+						}
 					}
 				}
 			}
@@ -2805,9 +3192,9 @@ class ET_Builder_Element {
 			$template_output .= sprintf(
 				'%6$s<script type="text/template" id="et-builder-advanced-setting-%1$s-title">
 					<%% if ( typeof( %2$s ) !== \'undefined\' && typeof( %2$s ) === \'string\' && %2$s !== \'\' ) { %%>
-						<%%- %2$s %%>
+						<%%- %2$s.replace( /%%91/g, "[" ).replace( /%%93/g, "]" ) %%>
 					<%% } else if ( typeof( %3$s ) !== \'undefined\' && typeof( %3$s ) === \'string\' && %3$s !== \'\' ) { %%>
-						<%%- %3$s %%>
+						<%%- %3$s.replace( /%%91/g, "[" ).replace( /%%93/g, "]" ) %%>
 					<%% } else { %%>
 						<%%- \'%4$s\' %%>
 					<%% } %%>
@@ -3727,6 +4114,40 @@ class ET_Builder_Element {
 
 		return $a_priority - $b_priority;
 	}
+	/*
+	 * Reorder toggles based on the priority with respect to manually ordered items with no priority
+	 *
+	 */
+	static function et_pb_order_toggles_by_priority( $toggles_array ) {
+		if ( empty( $toggles_array ) ) {
+			return array();
+		}
+
+		$high_priority_toggles = array();
+		$low_priority_toggles = array();
+		$manually_ordered_toggles = array();
+
+		// fill 3 arrays based on priority
+		foreach ( $toggles_array as $toggle_id => $toggle_data ) {
+			if ( isset( $toggle_data['priority'] ) ) {
+				if ( $toggle_data['priority'] < 10 ) {
+					$high_priority_toggles[ $toggle_id ] = $toggle_data;
+				} else {
+					$low_priority_toggles[ $toggle_id ] = $toggle_data;
+				}
+			} else {
+				// keep the original order of options without priority defined
+				$manually_ordered_toggles[ $toggle_id ] = $toggle_data;
+			}
+		}
+
+		// order high and low priority toggles
+		uasort( $high_priority_toggles, array( 'self', 'compare_by_priority' ) );
+		uasort( $low_priority_toggles, array( 'self', 'compare_by_priority' ) );
+
+		// merge 3 arrays to get the correct order of toggles.
+		return array_merge( $high_priority_toggles, $manually_ordered_toggles, $low_priority_toggles );
+	}
 
 	static function compare_by_name( $a, $b ) {
 		return strcasecmp( $a->name, $b->name );
@@ -4102,7 +4523,34 @@ class ET_Builder_Element {
 		return $module_defaults;
 	}
 
-	static function get_general_fields( $post_type = '', $mode = 'all' ) {
+	static function get_toggles( $post_type ) {
+		$parent_modules = self::get_parent_modules( $post_type );
+		$child_modules  = self::get_child_modules( $post_type );
+		$toggles_array = array();
+
+		$_modules = array_merge( $parent_modules, $child_modules );
+
+		foreach( $_modules as $_module_slug => $_module ) {
+
+			// skip modules without fb support
+			if ( ! $_module->fb_support ) {
+				continue;
+			}
+
+			$toggles_array[ $_module_slug ] = isset( $_module->options_toggles ) ? $_module->options_toggles : array();
+
+			foreach( array( 'general', 'advanced', 'custom_css' ) as $tab ) {
+				// sort toggles by priority
+				if ( isset( $toggles_array[ $_module_slug ][ $tab ]['toggles'] ) ) {
+					$toggles_array[ $_module_slug ][ $tab ]['toggles'] = self::et_pb_order_toggles_by_priority( $toggles_array[ $_module_slug ][ $tab ]['toggles'] );
+				}
+			}
+		}
+
+		return $toggles_array;
+	}
+
+	static function get_general_fields( $post_type = '', $mode = 'all', $module_type = 'all' ) {
 		$parent_modules = self::get_parent_modules( $post_type );
 		$child_modules  = self::get_child_modules( $post_type );
 
@@ -4129,6 +4577,11 @@ class ET_Builder_Element {
 				continue;
 			}
 
+			// filter modules by slug if needed
+			if ( 'all' !== $module_type && $module_type !== $_module_slug ) {
+				continue;
+			}
+
 			$dependables = array();
 
 			foreach ( $_module->fields_unprocessed as $field_key => $field ) {
@@ -4136,7 +4589,7 @@ class ET_Builder_Element {
 					$dependables[ $field_key ] = $field['affects'];
 				}
 
-				if ( isset( $field['tab_slug'] ) ) {
+				if ( isset( $field['tab_slug'] ) && 'general' !== $field['tab_slug'] ) {
 					continue;
 				}
 
@@ -4158,10 +4611,14 @@ class ET_Builder_Element {
 			}
 		}
 
+		if ( 'all' !== $module_type ) {
+			return $module_fields[ $module_type ];
+		}
+
 		return $module_fields;
 	}
 
-	static function get_advanced_fields( $post_type = '', $mode = 'all' ) {
+	static function get_advanced_fields( $post_type = '', $mode = 'all', $module_type = 'all' ) {
 		$parent_modules = self::get_parent_modules( $post_type );
 		$child_modules  = self::get_child_modules( $post_type );
 
@@ -4182,6 +4639,10 @@ class ET_Builder_Element {
 		$module_fields = array();
 
 		foreach( $_modules as $_module_slug => $_module ) {
+			// filter modules by slug if needed
+			if ( 'all' !== $module_type && $module_type !== $_module_slug ) {
+				continue;
+			}
 
 			$dependables = array();
 
@@ -4220,13 +4681,16 @@ class ET_Builder_Element {
 			if ( ! empty( $_module->advanced_options ) ) {
 				$module_fields[ $_module_slug ]['advanced_common'] = $_module->advanced_options;
 			}
+		}
 
+		if ( 'all' !== $module_type ) {
+			return $module_fields[ $module_type ];
 		}
 
 		return $module_fields;
 	}
 
-	static function get_custom_css_fields( $post_type = '', $mode = 'all' ) {
+	static function get_custom_css_fields( $post_type = '', $mode = 'all', $module_type = 'all' ) {
 		$parent_modules = self::get_parent_modules( $post_type );
 		$child_modules  = self::get_child_modules( $post_type );
 
@@ -4246,8 +4710,15 @@ class ET_Builder_Element {
 
 		$module_fields = array();
 
-		$custom_css_unwanted_types = array( 'custom_css', 'column_settings_css', 'column_settings_css_fields' );
+		$custom_css_unwanted_types = array( 'custom_css', 'column_settings_css', 'column_settings_css_fields', 'column_settings_custom_css' );
 		foreach( $_modules as $_module_slug => $_module ) {
+			// filter modules by slug if needed
+			if ( 'all' !== $module_type && $module_type !== $_module_slug ) {
+				continue;
+			}
+
+			$dependables = array();
+
 			$module_fields[ $_module_slug ] = $_module->custom_css_options;
 
 			// Automatically added module ID and module class fields to setting modal's CSS tab
@@ -4256,9 +4727,27 @@ class ET_Builder_Element {
 					if ( isset( $field_unprocessed['tab_slug'] ) && 'custom_css' === $field_unprocessed['tab_slug'] &&
 						 isset( $field_unprocessed['type'] ) && ! in_array( $field_unprocessed['type'], $custom_css_unwanted_types ) ) {
 						$module_fields[ $_module_slug ][ $field_unprocessed_key ] = $field_unprocessed;
+
+						if ( isset( $field_unprocessed['affects'] ) ) {
+							$dependables[ $field_unprocessed_key ] = $field_unprocessed['affects'];
+						}
+					}
+				}
+
+				if ( ! empty( $dependables ) ) {
+					foreach ( $dependables as $dependable_field => $affects ) {
+						foreach ( $affects as $affect ) {
+							if ( isset( $module_fields[ $_module_slug ][ $affect ] ) ) {
+								$module_fields[ $_module_slug ][ $affect ]['depends_to'][] = $dependable_field;
+							}
+						}
 					}
 				}
 			}
+		}
+
+		if ( 'all' !== $module_type ) {
+			return $module_fields[ $module_type ];
 		}
 
 		return $module_fields;
@@ -4586,35 +5075,50 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 	public $is_structure_element = true;
 
 	function wrap_settings_option( $option_output, $field ) {
-		if ( ! empty( $field['type'] ) && 'column_settings' == $field['type'] ) {
-			$output = $this->generate_columns_settings();
-		} elseif ( ! empty( $field['type'] ) && 'column_settings_css_fields' == $field['type'] ) {
-			$output = $this->generate_columns_settings_css_fields();
-		} elseif ( ! empty( $field['type'] ) && 'column_settings_css' == $field['type'] ) {
-			$output = $this->generate_columns_settings_css();
-		} else {
-			$depends = false;
-			if ( isset( $field['depends_show_if'] ) || isset( $field['depends_show_if_not'] ) ) {
-				$depends = true;
-				if ( isset( $field['depends_show_if_not'] ) ) {
-					$depends_attr = sprintf( ' data-depends_show_if_not="%s"', esc_attr( $field['depends_show_if_not'] ) );
-				} else {
-					$depends_attr = sprintf( ' data-depends_show_if="%s"', esc_attr( $field['depends_show_if'] ) );
-				}
-			}
+		$field_type = ! empty( $field['type'] ) ? $field['type'] : '';
 
-			$output = sprintf(
-				'%6$s<div class="et-pb-option%1$s%2$s%3$s%8$s%9$s"%4$s>%5$s</div> <!-- .et-pb-option -->%7$s',
-				( ! empty( $field['type'] ) && 'tiny_mce' == $field['type'] ? ' et-pb-option-main-content' : '' ),
-				( ( $depends || isset( $field['depends_default'] ) ) ? ' et-pb-depends' : '' ),
-				( ! empty( $field['type'] ) && 'hidden' == $field['type'] ? ' et_pb_hidden' : '' ),
-				( $depends ? $depends_attr : '' ),
-				"\n\t\t\t\t" . $option_output . "\n\t\t\t",
-				"\t",
-				"\n\n\t\t",
-				( ! empty( $field['type'] ) && 'hidden' == $field['type'] ? esc_attr( sprintf( ' et-pb-option-%1$s', $field['name'] ) ) : '' ),
-				( ! empty( $field['option_class'] ) ? ' ' . $field['option_class'] : '' )
-			);
+		switch( $field_type ) {
+			case 'column_settings_background' :
+				$output = $this->generate_columns_settings_background();
+				break;
+			case 'column_settings_parallax' :
+				$output = $this->generate_columns_settings_parallax();
+				break;
+			case 'column_settings_padding' :
+				$output = $this->generate_columns_settings_padding();
+				break;
+			case 'column_settings_css_fields' :
+				$output = $this->generate_columns_settings_css_fields();
+				break;
+			case 'column_settings_css' :
+				$output = $this->generate_columns_settings_css();
+				break;
+			default:
+				$depends = false;
+				if ( isset( $field['depends_show_if'] ) || isset( $field['depends_show_if_not'] ) ) {
+					$depends = true;
+					if ( isset( $field['depends_show_if_not'] ) ) {
+						$depends_attr = sprintf( ' data-depends_show_if_not="%s"', esc_attr( $field['depends_show_if_not'] ) );
+					} else {
+						$depends_attr = sprintf( ' data-depends_show_if="%s"', esc_attr( $field['depends_show_if'] ) );
+					}
+				}
+
+				$output = sprintf(
+					'%6$s<div class="et-pb-option et-pb-option--%11$s%1$s%2$s%3$s%8$s%9$s%10$s"%4$s>%5$s</div> <!-- .et-pb-option -->%7$s',
+					( ! empty( $field['type'] ) && 'tiny_mce' == $field['type'] ? ' et-pb-option-main-content' : '' ),
+					( ( $depends || isset( $field['depends_default'] ) ) ? ' et-pb-depends' : '' ),
+					( ! empty( $field['type'] ) && 'hidden' == $field['type'] ? ' et_pb_hidden' : '' ),
+					( $depends ? $depends_attr : '' ),
+					"\n\t\t\t\t" . $option_output . "\n\t\t\t",
+					"\t",
+					"\n\n\t\t",
+					( ! empty( $field['type'] ) && 'hidden' == $field['type'] ? esc_attr( sprintf( ' et-pb-option-%1$s', $field['name'] ) ) : '' ),
+					( ! empty( $field['option_class'] ) ? ' ' . $field['option_class'] : '' ),
+					isset( $field['specialty_only'] ) && 'yes' === $field['specialty_only'] ? ' et-pb-specialty-only-option' : '',
+					isset( $field['type'] ) ? esc_attr( $field['type'] ) : ''
+				);
+				break;
 		}
 
 		return $output;
@@ -4629,7 +5133,7 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 					current_module_class_value = typeof et_pb_module_class_%1$s !== \'undefined\' ? et_pb_module_class_%1$s : \'\',
 					current_custom_css_before_value = typeof et_pb_custom_css_before_%1$s !== \'undefined\' ? et_pb_custom_css_before_%1$s : \'\',
 					current_custom_css_main_value = typeof et_pb_custom_css_main_%1$s !== \'undefined\' ? et_pb_custom_css_main_%1$s : \'\',
-					current_custom_css_after_value = typeof et_pb_custom_css_after_%1$s !== \'undefined\' ? et_pb_custom_css_after_%1$s : \'\'
+					current_custom_css_after_value = typeof et_pb_custom_css_after_%1$s !== \'undefined\' ? et_pb_custom_css_after_%1$s : \'\';
 					break; ',
 				esc_attr( $i )
 			);
@@ -4638,12 +5142,26 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 		return $output;
 	}
 
-	function generate_column_vars() {
+	function generate_column_vars_bg() {
 		$output = '';
 		for ( $i = 1; $i < 5; $i++ ) {
 			$output .= sprintf(
 				'case %1$s :
 					current_value_bg = typeof et_pb_background_color_%1$s !== \'undefined\' ? et_pb_background_color_%1$s : \'\',
+					current_value_bg_img = typeof et_pb_bg_img_%1$s !== \'undefined\' ? et_pb_bg_img_%1$s : \'\';
+					break; ',
+				esc_attr( $i )
+			);
+		}
+
+		return $output;
+	}
+
+	function generate_column_vars_padding() {
+		$output = '';
+		for ( $i = 1; $i < 5; $i++ ) {
+			$output .= sprintf(
+				'case %1$s :
 					current_value_pt = typeof et_pb_padding_top_%1$s !== \'undefined\' ? et_pb_padding_top_%1$s : \'\',
 					current_value_pr = typeof et_pb_padding_right_%1$s !== \'undefined\' ? et_pb_padding_right_%1$s : \'\',
 					current_value_pb = typeof et_pb_padding_bottom_%1$s !== \'undefined\' ? et_pb_padding_bottom_%1$s : \'\',
@@ -4652,8 +5170,20 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 					current_value_padding_phone = typeof et_pb_padding_%1$s_phone !== \'undefined\' ? et_pb_padding_%1$s_phone : \'\',
 					last_edited_padding_field = typeof et_pb_padding_%1$s_last_edited !== \'undefined\' ?  et_pb_padding_%1$s_last_edited : \'\',
 					has_tablet_padding = typeof et_pb_padding_%1$s_tablet !== \'undefined\' ? \'yes\' : \'no\',
-					has_phone_padding = typeof et_pb_padding_%1$s_phone !== \'undefined\' ? \'yes\' : \'no\',
-					current_value_bg_img = typeof et_pb_bg_img_%1$s !== \'undefined\' ? et_pb_bg_img_%1$s : \'\';
+					has_phone_padding = typeof et_pb_padding_%1$s_phone !== \'undefined\' ? \'yes\' : \'no\';
+					break; ',
+				esc_attr( $i )
+			);
+		}
+
+		return $output;
+	}
+
+	function generate_column_vars_parallax() {
+		$output = '';
+		for ( $i = 1; $i < 5; $i++ ) {
+			$output .= sprintf(
+				'case %1$s :
 					current_value_parallax = typeof et_pb_parallax_%1$s !== \'undefined\' && \'on\' === et_pb_parallax_%1$s ? \' selected="selected"\' : \'\';
 					current_value_parallax_method = typeof et_pb_parallax_method_%1$s !== \'undefined\' && \'on\' === et_pb_parallax_method_%1$s ? \' selected="selected"\' : \'\';
 					break; ',
@@ -4664,149 +5194,54 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 		return $output;
 	}
 
-	function generate_columns_settings() {
+	function generate_columns_settings_background() {
 		$output = sprintf(
 			'<%% var columns = typeof columns_layout !== \'undefined\' ? columns_layout.split(",") : [],
 				counter = 1;
 				_.each( columns, function ( column_type ) {
 					var current_value_bg,
-						current_value_pt,
-						current_value_pr,
-						current_value_pb,
-						current_value_pl,
-						current_value_padding_tablet,
-						current_value_padding_phone,
-						current_value_bg_img,
-						current_value_parallax,
-						current_value_parallax_method,
-						has_tablet_padding,
-						has_phone_padding;
+						current_value_bg_img;
 					switch ( counter ) {
 						%1$s
 					}
 			%%>',
-			$this->generate_column_vars()
+			$this->generate_column_vars_bg()
 		);
 
 		$output .= sprintf(
-			'<div class="et-pb-option">
-				<label for="et_pb_bg_img_<%%= counter %%>">
-					%1$s
-					<%% if ( "4_4" !== column_type ) { %%>
-						<%%= counter + " " %%>
-					<%% } %%>
-					%2$s:
-				</label>
+			'<div class="et_pb_subtoggle_section">
+				<div class="et-pb-option-toggle-content">
+					<div class="et-pb-option">
+						<label for="et_pb_background_color_<%%= counter %%>">
+							%1$s
+							<%% if ( "4_4" !== column_type ) { %%>
+								<%%= counter + " " %%>
+							<%% } %%>
+							%6$s:
+						</label>
+						<div class="et-pb-option-container">
+							<input id="et_pb_background_color_<%%= counter %%>" class="et-pb-color-picker-hex et-pb-color-picker-hex-alpha wp-color-picker et-pb-main-setting" type="text" data-alpha="true" placeholder="%7$s" value="<%%= current_value_bg %%>" />
+							<span class="et-pb-reset-setting" style="display: none;"></span>
+						</div> <!-- .et-pb-option-container -->
+					</div> <!-- .et-pb-option -->
 
-				<div class=et-pb-option-container>
-					<input id="et_pb_bg_img_<%%= counter %%>" type="text" class="regular-text et-pb-upload-field et-pb-main-setting" value="<%%= current_value_bg_img  %%>" />
-					<input type="button" class="button button-upload et-pb-upload-button" value="%3$s" data-choose="%4$s" data-update="%5$s" data-type="image" />
-					<span class="et-pb-reset-setting" style="display: none;"></span>
-				</div>
-			</div> <!-- .et-pb-option -->
+					<div class="et-pb-option">
+						<label for="et_pb_bg_img_<%%= counter %%>">
+							%1$s
+							<%% if ( "4_4" !== column_type ) { %%>
+								<%%= counter + " " %%>
+							<%% } %%>
+							%2$s:
+						</label>
 
-			<div class="et-pb-option">
-				<label for="et_pb_parallax_<%%= counter %%>">
-					%1$s
-					<%% if ( "4_4" !== column_type ) { %%>
-						<%%= counter + " " %%>
-					<%% } %%>
-					%13$s:
-				</label>
-
-				<div class="et-pb-option-container">
-					<div class="et_pb_yes_no_button_wrapper ">
-						<div class="et_pb_yes_no_button et_pb_off_state">
-							<span class="et_pb_value_text et_pb_on_value">%14$s</span>
-							<span class="et_pb_button_slider"></span>
-							<span class="et_pb_value_text et_pb_off_value">%15$s</span>
+						<div class=et-pb-option-container>
+							<input id="et_pb_bg_img_<%%= counter %%>" type="text" class="regular-text et-pb-upload-field et-pb-main-setting" value="<%%= current_value_bg_img  %%>" />
+							<input type="button" class="button button-upload et-pb-upload-button" value="%3$s" data-choose="%4$s" data-update="%5$s" data-type="image" />
+							<span class="et-pb-reset-setting" style="display: none;"></span>
 						</div>
-						<select name="et_pb_parallax_<%%= counter %%>" id="et_pb_parallax_<%%= counter %%>" class="et-pb-main-setting regular-text et-pb-affects" data-affects="#et_pb_parallax_method_<%%= counter %%>">
-							<option value="off">%15$s</option>
-							<option value="on" <%%= current_value_parallax %%>>%14$s</option>
-						</select>
-					</div>
-					<span class="et-pb-reset-setting" style="display: none;"></span>
-				</div> <!-- .et-pb-option-container -->
+					</div> <!-- .et-pb-option -->
+				</div>
 			</div>
-
-			<div class="et-pb-option et-pb-depends" data-depends_show_if="on">
-				<label for="et_pb_parallax_method_<%%= counter %%>">
-					%1$s
-					<%% if ( "4_4" !== column_type ) { %%>
-						<%%= counter + " " %%>
-					<%% } %%>
-					%16$s:
-				</label>
-
-				<div class="et-pb-option-container">
-					<select name="et_pb_parallax_method_<%%= counter %%>" id="et_pb_parallax_method_<%%= counter %%>" class="et-pb-main-setting">
-						<option value="off">%17$s</option>
-						<option value="on" <%%= current_value_parallax_method %%>>%18$s</option>
-					</select>
-					<span class="et-pb-reset-setting" style="display: none;"></span>
-				</div> <!-- .et-pb-option-container -->
-			</div>
-
-			<div class="et-pb-option">
-				<label for="et_pb_background_color_<%%= counter %%>">
-					%1$s
-					<%% if ( "4_4" !== column_type ) { %%>
-						<%%= counter + " " %%>
-					<%% } %%>
-					%6$s:
-				</label>
-				<div class="et-pb-option-container">
-					<input id="et_pb_background_color_<%%= counter %%>" class="et-pb-color-picker-hex et-pb-color-picker-hex-alpha wp-color-picker et-pb-main-setting" type="text" data-alpha="true" placeholder="%7$s" value="<%%= current_value_bg %%>" />
-					<span class="et-pb-reset-setting" style="display: none;"></span>
-				</div> <!-- .et-pb-option-container -->
-			</div> <!-- .et-pb-option -->
-
-			<div class="et-pb-option">
-				<label for="et_pb_padding_<%%= counter %%>">
-					%1$s
-					<%% if ( "4_4" !== column_type ) { %%>
-						<%%= counter + " " %%>
-					<%% } %%>
-					%8$s:
-				</label>
-				<div class="et-pb-option-container">
-				%19$s
-					<div class="et_custom_margin_padding">
-						<label>
-							%9$s
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_top et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_top_<%%= counter %%>" name="et_pb_padding_top_<%%= counter %%>" value="<%%= current_value_pt %%>" data-device="desktop">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_top et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_top et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
-						</label>
-						<label>
-							%10$s
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_right et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_right_<%%= counter %%>" name="et_pb_padding_right_<%%= counter %%>" value="<%%= current_value_pr %%>" data-device="desktop">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_right et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_right et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
-						</label>
-						<label>
-							%11$s
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_bottom et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_bottom_<%%= counter %%>" name="et_pb_padding_bottom_<%%= counter %%>" value="<%%= current_value_pb %%>" data-device="desktop">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_bottom et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_bottom et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
-						</label>
-						<label>
-							%12$s
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_left et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_left_<%%= counter %%>" name="et_pb_padding_left_<%%= counter %%>" value="<%%= current_value_pl %%>" data-device="desktop">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_left et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
-							<input type="text" class="medium-text et_custom_margin et_custom_margin_left et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
-						</label>
-						<input type="hidden" class="et_custom_margin_main et_pb_setting_mobile et_pb_setting_mobile_desktop et-pb-main-setting et_pb_setting_mobile_active" value="<%%= \'\' === current_value_pt && \'\' === current_value_pr && \'\' === current_value_pb && \'\' === current_value_pl ? \'\' : current_value_pt + \'|\' + current_value_pr + \'|\' + current_value_pb + \'|\' + current_value_pl %%>" data-device="desktop">
-						<input type="hidden" class="et_custom_margin_main et_pb_setting_mobile et_pb_setting_mobile_tablet et-pb-main-setting" id="et_pb_padding_<%%= counter %%>_tablet" name="et_pb_padding_<%%= counter %%>_tablet" value="<%%= current_value_padding_tablet %%>" data-device="tablet" data-has_saved_value="<%%= has_tablet_padding %%>">
-						<input type="hidden" class="et_custom_margin_main et_pb_setting_mobile et_pb_setting_mobile_phone et-pb-main-setting" id="et_pb_padding_<%%= counter %%>_phone" name="et_pb_padding_<%%= counter %%>_phone" value="<%%= current_value_padding_phone %%>" data-device="phone" data-has_saved_value="<%%= has_phone_padding %%>">
-						<input id="et_pb_padding_<%%= counter %%>_last_edited" type="hidden" class="et_pb_mobile_last_edited_field" value="<%%= last_edited_padding_field %%>">
-					</div> <!-- .et_custom_margin_padding -->
-					<span class="et-pb-mobile-settings-toggle"></span>
-					<span class="et-pb-reset-setting"></span>
-				</div><!-- .et-pb-option-container -->
-			</div><!-- .et-pb-option -->
-
 			<%% counter++;
 			}); %%>',
 			esc_html__( 'Column', 'et_builder' ),
@@ -4815,19 +5250,165 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 			esc_html__( 'Choose a Background Image', 'et_builder' ),
 			esc_html__( 'Set As Background', 'et_builder' ), // #5
 			esc_html__( 'Background Color', 'et_builder' ),
-			esc_html__( 'Hex Value', 'et_builder' ),
-			esc_html__( 'Padding', 'et_builder' ),
-			esc_html__( 'Top', 'et_builder' ),
-			esc_html__( 'Right', 'et_builder' ), // #10
-			esc_html__( 'Bottom', 'et_builder' ),
-			esc_html__( 'Left', 'et_builder' ),
+			esc_html__( 'Hex Value', 'et_builder' ) // #7
+		);
+
+		return $output;
+	}
+
+	function generate_columns_settings_parallax() {
+		$output = sprintf(
+			'<%% var columns = typeof columns_layout !== \'undefined\' ? columns_layout.split(",") : [],
+				counter = 1;
+				_.each( columns, function ( column_type ) {
+					var current_value_parallax,
+						current_value_parallax_method;
+					switch ( counter ) {
+						%1$s
+					}
+			%%>',
+			$this->generate_column_vars_parallax()
+		);
+
+		$output .= sprintf(
+			'<div class="et_pb_subtoggle_section">
+				<div class="et-pb-option-toggle-content">
+					<div class="et-pb-option">
+						<label for="et_pb_parallax_<%%= counter %%>">
+							%1$s
+							<%% if ( "4_4" !== column_type ) { %%>
+								<%%= counter + " " %%>
+							<%% } %%>
+							%2$s:
+						</label>
+
+						<div class="et-pb-option-container">
+							<div class="et_pb_yes_no_button_wrapper ">
+								<div class="et_pb_yes_no_button et_pb_off_state">
+									<span class="et_pb_value_text et_pb_on_value">%3$s</span>
+									<span class="et_pb_button_slider"></span>
+									<span class="et_pb_value_text et_pb_off_value">%4$s</span>
+								</div>
+								<select name="et_pb_parallax_<%%= counter %%>" id="et_pb_parallax_<%%= counter %%>" class="et-pb-main-setting regular-text et-pb-affects" data-affects="#et_pb_parallax_method_<%%= counter %%>">
+									<option value="off">%4$s</option>
+									<option value="on" <%%= current_value_parallax %%>>%3$s</option>
+								</select>
+							</div>
+							<span class="et-pb-reset-setting" style="display: none;"></span>
+						</div> <!-- .et-pb-option-container -->
+					</div>
+
+					<div class="et-pb-option et-pb-depends" data-depends_show_if="on">
+						<label for="et_pb_parallax_method_<%%= counter %%>">
+							%1$s
+							<%% if ( "4_4" !== column_type ) { %%>
+								<%%= counter + " " %%>
+							<%% } %%>
+							%5$s:
+						</label>
+
+						<div class="et-pb-option-container">
+							<select name="et_pb_parallax_method_<%%= counter %%>" id="et_pb_parallax_method_<%%= counter %%>" class="et-pb-main-setting">
+								<option value="off">%6$s</option>
+								<option value="on" <%%= current_value_parallax_method %%>>%7$s</option>
+							</select>
+							<span class="et-pb-reset-setting" style="display: none;"></span>
+						</div> <!-- .et-pb-option-container -->
+					</div>
+				</div>
+			</div>
+			<%% counter++;
+			}); %%>',
+			esc_html__( 'Column', 'et_builder' ),
 			esc_html__( 'Parallax Effect', 'et_builder' ),
 			esc_html__( 'Yes', 'et_builder' ),
-			esc_html__( 'No', 'et_builder' ), // #15
-			esc_html__( 'Parallax Method', 'et_builder' ),
+			esc_html__( 'No', 'et_builder' ),
+			esc_html__( 'Parallax Method', 'et_builder' ), // #5
 			esc_html__( 'CSS', 'et_builder' ),
-			esc_html__( 'True Parallax', 'et_builder' ),
-			et_pb_generate_mobile_options_tabs() // #19
+			esc_html__( 'True Parallax', 'et_builder' ) // #7
+		);
+
+		return $output;
+	}
+
+	function generate_columns_settings_padding() {
+		$output = sprintf(
+			'<%% var columns = typeof columns_layout !== \'undefined\' ? columns_layout.split(",") : [],
+				counter = 1;
+				_.each( columns, function ( column_type ) {
+					var current_value_pt,
+						current_value_pr,
+						current_value_pb,
+						current_value_pl,
+						current_value_padding_tablet,
+						current_value_padding_phone,
+						has_tablet_padding,
+						has_phone_padding;
+					switch ( counter ) {
+						%1$s
+					}
+			%%>',
+			$this->generate_column_vars_padding()
+		);
+
+		$output .= sprintf(
+			'<div class="et_pb_subtoggle_section">
+				<div class="et-pb-option-toggle-content">
+					<div class="et-pb-option">
+						<label for="et_pb_padding_<%%= counter %%>">
+							%1$s
+							<%% if ( "4_4" !== column_type ) { %%>
+								<%%= counter + " " %%>
+							<%% } %%>
+							%2$s:
+						</label>
+						<div class="et-pb-option-container">
+						%7$s
+							<div class="et_custom_margin_padding">
+								<label>
+									%3$s
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_top et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_top_<%%= counter %%>" name="et_pb_padding_top_<%%= counter %%>" value="<%%= current_value_pt %%>" data-device="desktop">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_top et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_top et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
+								</label>
+								<label>
+									%4$s
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_right et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_right_<%%= counter %%>" name="et_pb_padding_right_<%%= counter %%>" value="<%%= current_value_pr %%>" data-device="desktop">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_right et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_right et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
+								</label>
+								<label>
+									%5$s
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_bottom et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_bottom_<%%= counter %%>" name="et_pb_padding_bottom_<%%= counter %%>" value="<%%= current_value_pb %%>" data-device="desktop">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_bottom et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_bottom et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
+								</label>
+								<label>
+									%6$s
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_left et-pb-validate-unit et_pb_setting_mobile et_pb_setting_mobile_desktop et_pb_setting_mobile_active" id="et_pb_padding_left_<%%= counter %%>" name="et_pb_padding_left_<%%= counter %%>" value="<%%= current_value_pl %%>" data-device="desktop">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_left et_pb_setting_mobile et_pb_setting_mobile_tablet" data-device="tablet">
+									<input type="text" class="medium-text et_custom_margin et_custom_margin_left et_pb_setting_mobile et_pb_setting_mobile_phone" data-device="phone">
+								</label>
+								<input type="hidden" class="et_custom_margin_main et_pb_setting_mobile et_pb_setting_mobile_desktop et-pb-main-setting et_pb_setting_mobile_active" value="<%%= \'\' === current_value_pt && \'\' === current_value_pr && \'\' === current_value_pb && \'\' === current_value_pl ? \'\' : current_value_pt + \'|\' + current_value_pr + \'|\' + current_value_pb + \'|\' + current_value_pl %%>" data-device="desktop">
+								<input type="hidden" class="et_custom_margin_main et_pb_setting_mobile et_pb_setting_mobile_tablet et-pb-main-setting" id="et_pb_padding_<%%= counter %%>_tablet" name="et_pb_padding_<%%= counter %%>_tablet" value="<%%= current_value_padding_tablet %%>" data-device="tablet" data-has_saved_value="<%%= has_tablet_padding %%>">
+								<input type="hidden" class="et_custom_margin_main et_pb_setting_mobile et_pb_setting_mobile_phone et-pb-main-setting" id="et_pb_padding_<%%= counter %%>_phone" name="et_pb_padding_<%%= counter %%>_phone" value="<%%= current_value_padding_phone %%>" data-device="phone" data-has_saved_value="<%%= has_phone_padding %%>">
+								<input id="et_pb_padding_<%%= counter %%>_last_edited" type="hidden" class="et_pb_mobile_last_edited_field" value="<%%= last_edited_padding_field %%>">
+							</div> <!-- .et_custom_margin_padding -->
+							<span class="et-pb-mobile-settings-toggle"></span>
+							<span class="et-pb-reset-setting"></span>
+						</div><!-- .et-pb-option-container -->
+					</div><!-- .et-pb-option -->
+				</div>
+			</div>
+			<%% counter++;
+			}); %%>',
+			esc_html__( 'Column', 'et_builder' ),
+			esc_html__( 'Padding', 'et_builder' ),
+			esc_html__( 'Top', 'et_builder' ),
+			esc_html__( 'Right', 'et_builder' ),
+			esc_html__( 'Bottom', 'et_builder' ), // #5
+			esc_html__( 'Left', 'et_builder' ),
+			et_pb_generate_mobile_options_tabs() // #7
 		);
 
 		return $output;
@@ -4848,48 +5429,51 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 				switch ( counter_css ) {
 					%1$s
 				} %%>
+				<div class="et_pb_subtoggle_section">
+					<div class="et-pb-option-toggle-content">
+						<div class="et-pb-option et-pb-option--custom_css">
+							<label for="et_pb_custom_css_before_<%%= counter_css %%>">
+								%2$s
+								<%% if ( "4_4" !== column_type ) { %%>
+									<%%= counter_css + " " %%>
+								<%% } %%>
+								%3$s:<span>.et_pb_column_<%%= \'row_inner\' === module_type ? \'inner_\' : \'\' %%><%%= typeof columns_order !== \'undefined\' && typeof columns_order[counter_css-1] !== \'undefined\' ?  columns_order[counter_css-1] : \'\' %%>:before</span>
+							</label>
 
-				<div class="et-pb-option">
-					<label for="et_pb_custom_css_before_<%%= counter_css %%>">
-						%2$s
-						<%% if ( "4_4" !== column_type ) { %%>
-							<%%= counter_css + " " %%>
-						<%% } %%>
-						%3$s:<span>.et_pb_column_<%%= \'row_inner\' === module_type ? \'inner_\' : \'\' %%><%%= typeof columns_order !== \'undefined\' && typeof columns_order[counter_css-1] !== \'undefined\' ?  columns_order[counter_css-1] : \'\' %%>:before</span>
-					</label>
+							<div class="et-pb-option-container et-pb-custom-css-option">
+								<textarea id="et_pb_custom_css_before_<%%= counter_css %%>" class="et-pb-main-setting large-text coderegular-text" rows="4" cols="50"><%%= current_custom_css_before_value.replace( /\|\|/g, "\n" ) %%></textarea>
+							</div><!-- .et-pb-option-container -->
+						</div><!-- .et-pb-option -->
 
-					<div class="et-pb-option-container et-pb-custom-css-option">
-						<textarea id="et_pb_custom_css_before_<%%= counter_css %%>" class="et-pb-main-setting large-text coderegular-text" rows="4" cols="50"><%%= current_custom_css_before_value.replace( /\|\|/g, "\n" ) %%></textarea>
-					</div><!-- .et-pb-option-container -->
-				</div><!-- .et-pb-option -->
+						<div class="et-pb-option et-pb-option--custom_css">
+							<label for="et_pb_custom_css_main_<%%= counter_css %%>">
+								%2$s
+								<%% if ( "4_4" !== column_type ) { %%>
+									<%%= counter_css + " " %%>
+								<%% } %%>
+								%4$s:<span>.et_pb_column_<%%= \'row_inner\' === module_type ? \'inner_\' : \'\' %%><%%= typeof columns_order !== \'undefined\' && typeof columns_order[counter_css-1] !== \'undefined\' ?  columns_order[counter_css-1] : \'\' %%></span>
+							</label>
 
-				<div class="et-pb-option">
-					<label for="et_pb_custom_css_main_<%%= counter_css %%>">
-						%2$s
-						<%% if ( "4_4" !== column_type ) { %%>
-							<%%= counter_css + " " %%>
-						<%% } %%>
-						%4$s:<span>.et_pb_column_<%%= \'row_inner\' === module_type ? \'inner_\' : \'\' %%><%%= typeof columns_order !== \'undefined\' && typeof columns_order[counter_css-1] !== \'undefined\' ?  columns_order[counter_css-1] : \'\' %%></span>
-					</label>
+							<div class="et-pb-option-container et-pb-custom-css-option">
+								<textarea id="et_pb_custom_css_main_<%%= counter_css %%>" class="et-pb-main-setting large-text coderegular-text" rows="4" cols="50"><%%= current_custom_css_main_value.replace( /\|\|/g, "\n" ) %%></textarea>
+							</div><!-- .et-pb-option-container -->
+						</div><!-- .et-pb-option -->
 
-					<div class="et-pb-option-container et-pb-custom-css-option">
-						<textarea id="et_pb_custom_css_main_<%%= counter_css %%>" class="et-pb-main-setting large-text coderegular-text" rows="4" cols="50"><%%= current_custom_css_main_value.replace( /\|\|/g, "\n" ) %%></textarea>
-					</div><!-- .et-pb-option-container -->
-				</div><!-- .et-pb-option -->
+						<div class="et-pb-option et-pb-option--custom_css">
+							<label for="et_pb_custom_css_after_<%%= counter_css %%>">
+								%2$s
+								<%% if ( "4_4" !== column_type ) { %%>
+									<%%= counter_css + " " %%>
+								<%% } %%>
+								%5$s:<span>.et_pb_column_<%%= \'row_inner\' === module_type ? \'inner_\' : \'\' %%><%%= typeof columns_order !== \'undefined\' && typeof columns_order[counter_css-1] !== \'undefined\' ?  columns_order[counter_css-1] : \'\' %%>:after</span>
+							</label>
 
-				<div class="et-pb-option">
-					<label for="et_pb_custom_css_after_<%%= counter_css %%>">
-						%2$s
-						<%% if ( "4_4" !== column_type ) { %%>
-							<%%= counter_css + " " %%>
-						<%% } %%>
-						%5$s:<span>.et_pb_column_<%%= \'row_inner\' === module_type ? \'inner_\' : \'\' %%><%%= typeof columns_order !== \'undefined\' && typeof columns_order[counter_css-1] !== \'undefined\' ?  columns_order[counter_css-1] : \'\' %%>:after</span>
-					</label>
-
-					<div class="et-pb-option-container et-pb-custom-css-option">
-						<textarea id="et_pb_custom_css_after_<%%= counter_css %%>" class="et-pb-main-setting large-text coderegular-text" rows="4" cols="50"><%%= current_custom_css_after_value.replace( /\|\|/g, "\n" ) %%></textarea>
-					</div><!-- .et-pb-option-container -->
-				</div><!-- .et-pb-option -->
+							<div class="et-pb-option-container et-pb-custom-css-option">
+								<textarea id="et_pb_custom_css_after_<%%= counter_css %%>" class="et-pb-main-setting large-text coderegular-text" rows="4" cols="50"><%%= current_custom_css_after_value.replace( /\|\|/g, "\n" ) %%></textarea>
+							</div><!-- .et-pb-option-container -->
+						</div><!-- .et-pb-option -->
+					</div>
+				</div>
 
 			<%% counter_css++;
 			}); %%>',
@@ -4915,34 +5499,37 @@ class ET_Builder_Structure_Element extends ET_Builder_Element {
 				switch ( counter_css ) {
 					%1$s
 				} %%>
+				<div class="et_pb_subtoggle_section">
+					<div class="et-pb-option-toggle-content">
+						<div class="et-pb-option et_pb_custom_css_regular">
+							<label for="et_pb_module_id_<%%= counter_css %%>">
+								%2$s
+								<%% if ( "4_4" !== column_type ) { %%>
+									<%%= counter_css + " " %%>
+								<%% } %%>
+								%3$s:
+							</label>
 
-				<div class="et-pb-option et_pb_custom_css_regular">
-					<label for="et_pb_module_id_<%%= counter_css %%>">
-						%2$s
-						<%% if ( "4_4" !== column_type ) { %%>
-							<%%= counter_css + " " %%>
-						<%% } %%>
-						%3$s:
-					</label>
+							<div class="et-pb-option-container">
+								<input id="et_pb_module_id_<%%= counter_css %%>" type="text" class="regular-text et_pb_custom_css_regular et-pb-main-setting" value="<%%= current_module_id_value %%>">
+							</div><!-- .et-pb-option-container -->
+						</div><!-- .et-pb-option -->
 
-					<div class="et-pb-option-container">
-						<input id="et_pb_module_id_<%%= counter_css %%>" type="text" class="regular-text et_pb_custom_css_regular et-pb-main-setting" value="<%%= current_module_id_value %%>">
-					</div><!-- .et-pb-option-container -->
-				</div><!-- .et-pb-option -->
+						<div class="et-pb-option et_pb_custom_css_regular">
+							<label for="et_pb_module_class_<%%= counter_css %%>">
+								%2$s
+								<%% if ( "4_4" !== column_type ) { %%>
+									<%%= counter_css + " " %%>
+								<%% } %%>
+								%4$s:
+							</label>
 
-				<div class="et-pb-option et_pb_custom_css_regular">
-					<label for="et_pb_module_class_<%%= counter_css %%>">
-						%2$s
-						<%% if ( "4_4" !== column_type ) { %%>
-							<%%= counter_css + " " %%>
-						<%% } %%>
-						%4$s:
-					</label>
-
-					<div class="et-pb-option-container">
-						<input id="et_pb_module_class_<%%= counter_css %%>" type="text" class="regular-text et_pb_custom_css_regular et-pb-main-setting" value="<%%= current_module_class_value %%>">
-					</div><!-- .et-pb-option-container -->
-				</div><!-- .et-pb-option -->
+							<div class="et-pb-option-container">
+								<input id="et_pb_module_class_<%%= counter_css %%>" type="text" class="regular-text et_pb_custom_css_regular et-pb-main-setting" value="<%%= current_module_class_value %%>">
+							</div><!-- .et-pb-option-container -->
+						</div><!-- .et-pb-option -->
+					</div>
+				</div>
 			<%% counter_css++;
 			}); %%>',
 			$this->generate_column_vars_css(),

@@ -1,14 +1,14 @@
 === Google Analytics Counter Tracker ===
 Plugin Name: Google Analytics Counter Tracker
-Version: 3.5.4
+Version: 3.5.6
 Tags: Google, Analytics, Google Analytics, Stats, Counter, Tracker, Statistics, Analytics dashboard, Reports, Charts, Web stats, Visit, Audience Overview, Visitors Overview, Marketing, Keywords, Hit counter, hitcounter, visitor tracker, visitor tracking, visitors, tracking, stats, statscounter, analyse, hits, hit, track
 Requires at least: 3.9
-Tested up to: 4.7.3
+Tested up to: 4.7.4
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Author: wpadm.com
-Contributors: WPAdm, wpadm.com
+Contributors: wpadm.com
 
 Google analytics counter tracker - analyse the visitors hits on you website and display it graphically
 
