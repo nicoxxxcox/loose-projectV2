@@ -32,7 +32,7 @@
     margin-top: 0;
     padding: 1rem;
     vertical-align: middle;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 // ################ BANNER BLOG
@@ -65,7 +65,7 @@
     margin-top: 0;
     padding: 1rem;
     vertical-align: middle;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 // ################ CARRE BLOG
@@ -99,7 +99,39 @@
     margin-top: 0;
     padding: 1rem;
     vertical-align: middle;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+/*feature thumbnails carre deux on blog page*/
+
+.format-carre-deux .et_pb_post a img {
+    //height: 320px;
+    float: left;
+    width: auto;
+    object-fit: cover;
+    left: 0;
+    padding-right: 14px;
+}
+
+
+/*feature thumbnails title on blog carre deux page*/
+
+.format-carre-deux et_pb_post {
+    vertical-align: middle;
+    position: relative;
+}
+
+.format-carre-deux .entry-title {
+    position: absolute;
+    text-align: center;
+    width: 85%;
+    left: 6%;
+    height: auto;
+    top: 23%;
+    margin-top: 0;
+    padding: 1rem;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 // reglages responsives
@@ -127,6 +159,14 @@
         height: auto;
         top: 33%;
     }
+     .format-carre-deux .entry-title {
+        position: absolute;
+        text-align: center;
+        width: 85%;
+        left: 6%;
+        height: auto;
+        top: 33%;
+    }
 }
 
 @media (max-width:550px) {
@@ -151,6 +191,21 @@
         height: auto;
         top: 5%;
     }
+     .format-carre-deux .et_pb_post a img {
+        height: auto;
+        float: left;
+        width: auto;
+        object-fit: cover;
+        padding-right: 14px;
+    }
+    .format-carre-deux .entry-title {
+        position: absolute;
+        text-align: center;
+        width: 85%;
+        left: 6%;
+        height: auto;
+        top: 15%;
+    }
 }
 
 
@@ -159,7 +214,8 @@
 // supprimer les extraits de post
 .format-portrait .post-content,
 .format-banniere .post-content,
-.format-carre .post-content {
+.format-carre .post-content,
+.format-carre-deux .post-content {
     display: none;
 }
 
