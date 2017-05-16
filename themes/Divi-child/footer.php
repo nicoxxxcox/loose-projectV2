@@ -28,6 +28,12 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 					</div>
 				</div> <!-- #et-footer-nav -->
 
+
+<!--Social icons-->
+
+
+<!--Social icons end	-->
+
 			<?php endif; ?>
 
 				

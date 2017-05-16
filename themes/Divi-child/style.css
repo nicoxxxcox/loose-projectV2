@@ -224,6 +224,18 @@
 #sb_instagram #sbi_load .sbi_load_btn, #sb_instagram #sbi_load .sbi_follow_btn a {
   font-size: 16px; }
 
+#main-footer #et-footer-menu {
+  margin: 0 auto;
+  display: block;
+  max-width: 300px;
+  text-align: center;
+  float: inherit;
+  height: auto; }
+  #main-footer #et-footer-menu .et-social-icons {
+    float: inherit; }
+    #main-footer #et-footer-menu .et-social-icons li {
+      margin-right: 20px; }
+
 /*** Take out the divider line between content and sidebar ***/
 /*** Hide Sidebar ***/
 /*** Expand the content area to fullwidth ***/
